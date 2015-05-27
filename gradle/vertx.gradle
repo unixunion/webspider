@@ -18,9 +18,9 @@ import org.vertx.java.platform.impl.cli.Starter
 
 apply plugin: 'java'
 apply plugin: 'groovy'
-//apply plugin: 'scala'
-//apply plugin: 'idea'
-//apply plugin: 'eclipse'
+apply plugin: 'scala'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
 
 def cpSeparator = System.getProperty("path.separator")
 
@@ -105,13 +105,13 @@ sourceSets {
 
 task copyMod( type:Copy, dependsOn: 'classes', description: 'Assemble the module into the local mods directory' ) {
   into "build/mods/$moduleName"
-//  from compileGroovy
+  from compileGroovy
   from compileJava
-//  from compileScala
+  from compileScala
   from 'src/main/resources'
   into( 'lib' ) {
     from configurations.compile
-      from configurations.logback
+//    from configurations.logback
   }
 }
 
@@ -156,7 +156,6 @@ test {
 
     // Show output
     testLogging.showStandardStreams = true
-
     testLogging { exceptionFormat "full" }
 
     systemProperty 'vertx.mods', "build/mods"
@@ -177,8 +176,7 @@ task collectDeps(type: Copy) {
 }
 
 task runMod(description: 'Run the module', dependsOn: [collectDeps, classes, init]) << {
-    setSysProps()
-//    doInit()
+    System.setProperty("org.vertx.logger-delegate-factory-class-name", "org.vertx.java.core.logging.impl.SLF4JLogDelegateFactory")
     def args = ['runmod', moduleName]
     def args2 = runModArgs.split("\\s+")
     args.addAll(args2)
@@ -239,6 +237,20 @@ def loadProperties(String sourceFileName) {
     for (Map.Entry property in config) {
       project.ext[property.key] = property.value;
     }
+  }
+}
+
+task copyLogbackLibs(type: Copy, dependsOn: fatJar) {
+  mkdir("build/libs/logback/lib")
+  destinationDir = file("build/libs/logback")
+  into ('lib') {
+    from configurations.logback
+  }
+}
+
+task dist(description: 'Build fatJar with logback support', dependsOn: copyLogbackLibs) << {
+  ant.jar(update: 'true', destfile: "build/libs/${modname}-${version}-fat.jar") {
+    fileset(dir: 'build/libs/logback', includes: '**')
   }
 }
 

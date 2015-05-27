@@ -76,19 +76,7 @@ test {
 //    systemProperty 'org.vertx.logger-delegate-factory-class-name', "org.vertx.java.core.logging.impl.SLF4JLogDelegateFactory"
 //}
 
-task copyLogbackLibs(type: Copy, dependsOn: fatJar) {
-    mkdir("build/libs/logback/lib")
-    destinationDir = file("build/libs/logback")
-    into ('lib') {
-        from configurations.logback
-    }
-}
 
-task dist(dependsOn: copyLogbackLibs) << {
-    ant.jar(update: 'true', destfile: "build/libs/${modname}-${version}-fat.jar") {
-        fileset(dir: 'build/libs/logback', includes: '**')
-    }
-}
 
 
 /*
