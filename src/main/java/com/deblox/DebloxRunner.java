@@ -48,7 +48,7 @@ public class DebloxRunner {
     Consumer<Vertx> runner = vertx -> {
       try {
         JsonObject config = Util.loadConfig("/conf.json");
-        // put config inside a config tag
+        // put config inside a config tag to solve issue between running as fatJar and running main[]
         DeploymentOptions deploymentOptions = new DeploymentOptions(new JsonObject().put("config", config));
         vertx.deployVerticle(verticleID, deploymentOptions);
       } catch (Throwable t) {
