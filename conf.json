@@ -1,6 +1,5 @@
 // config options per service are as per: DeployOptions.java
 {
-  "config": {
     "services": ["com.deblox.myproject.PingVerticle"],
     "com.deblox.myproject.PingVerticle": {
       "config": {
@@ -17,14 +16,4 @@
       "redeployScanPeriod": 250,
       "redeployGracePeriod": 1000
     }
-  },
-  "worker": false,
-  "multiThreaded": false,
-  "isolationGroup": null,
-  "ha": false,
-  "extraClasspath": null,
-  "instances": 1,
-  "redeploy": true,
-  "redeployScanPeriod": 250,
-  "redeployGracePeriod": 1000
 }
