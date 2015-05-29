@@ -64,7 +64,13 @@ public class Boot extends AbstractVerticle {
             "                                     ▀                                                                                        ");
 
     config = config();
-    logger.info("config: " + config.toString());
+
+    // warn a brother!
+    if (config.equals(new JsonObject())) {
+      logger.warn("you have no config here!");
+    } else {
+      logger.info("config: " + config.toString());
+    }
 
     // Start each class mentioned in services
     for (final Object service : config.getJsonArray("services", new JsonArray())) {
