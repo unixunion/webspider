@@ -89,6 +89,9 @@ public class Boot extends AbstractVerticle {
 
       });
     }
+
+    logger.info("startup complete");
+
   }
 }
 
