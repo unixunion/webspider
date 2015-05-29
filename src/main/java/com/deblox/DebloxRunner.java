@@ -15,13 +15,17 @@ public class DebloxRunner {
 
   private static final Logger logger = LoggerFactory.getLogger(DebloxRunner.class);
 
-  public static void runJava(String prefix, Class clazz, boolean clustered) {
-    runJava(prefix, clazz, new VertxOptions().setClustered(clustered));
+  public static void runJava(String prefix, Class clazz, boolean clustered, String confFile) {
+    runJava(prefix, clazz, new VertxOptions().setClustered(clustered), confFile);
   }
 
-  public static void runJava(String prefix, Class clazz, VertxOptions options) {
+  public static void runJava(String prefix, Class clazz, boolean clustered) {
+    runJava(prefix, clazz, new VertxOptions().setClustered(clustered), "/conf.json");
+  }
+
+  public static void runJava(String prefix, Class clazz, VertxOptions options, String confFile) {
     String runDir = prefix + clazz.getPackage().getName().replace(".", "/");
-    run(runDir, clazz.getName(), options);
+    run(runDir, clazz.getName(), options, confFile);
   }
 
   public static void runScript(String prefix, String scriptName, boolean clustered) {
@@ -31,23 +35,23 @@ public class DebloxRunner {
     DebloxRunner.run(scriptDir, scriptDir + "/" + file.getName(), clustered);
   }
 
-  public static void runScript(String prefix, String scriptName, VertxOptions options) {
-    File file = new File(scriptName);
-    String dirPart = file.getParent();
-    String scriptDir = prefix + dirPart;
-    DebloxRunner.run(scriptDir, scriptDir + "/" + file.getName(), options);
-  }
+//  public static void runScript(String prefix, String scriptName, VertxOptions options) {
+//    File file = new File(scriptName);
+//    String dirPart = file.getParent();
+//    String scriptDir = prefix + dirPart;
+//    DebloxRunner.run(scriptDir, scriptDir + "/" + file.getName(), options);
+//  }
 
   public static void run(String runDir, String verticleID, boolean clustered) {
-    run(runDir, verticleID, new VertxOptions().setClustered(clustered));
+    run(runDir, verticleID, new VertxOptions().setClustered(clustered), "/conf.json");
   }
 
-  public static void run(String runDir, String verticleID, VertxOptions options) {
+  public static void run(String runDir, String verticleID, VertxOptions options, String confFile) {
     logger.info("booting");
     System.setProperty("vertx.cwd", runDir);
     Consumer<Vertx> runner = vertx -> {
       try {
-        JsonObject config = Util.loadConfig("/conf.json");
+        JsonObject config = Util.loadConfig(confFile);
         // put config inside a config tag to solve issue between running as fatJar and running main[]
         DeploymentOptions deploymentOptions = new DeploymentOptions(new JsonObject().put("config", config));
         vertx.deployVerticle(verticleID, deploymentOptions);
