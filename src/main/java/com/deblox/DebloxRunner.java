@@ -9,7 +9,7 @@ import java.io.File;
 import java.util.function.Consumer;
 
 /*
- * Runner for Running Tests and from within IDE
+ * Runner for Running from within IDE only!
  */
 public class DebloxRunner {
 

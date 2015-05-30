@@ -19,12 +19,12 @@ package com.deblox.myproject;
 
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.Future;
-import io.vertx.core.eventbus.Message;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.impl.LoggerFactory;
+
+import java.util.UUID;
 
 /*
  * This is a simple Java verticle which receives `ping` messages on the event bus and sends back `pong` replies
@@ -35,20 +35,24 @@ public class PingVerticle extends AbstractVerticle {
 
   private static final Logger logger = LoggerFactory.getLogger(PingVerticle.class);
   EventBus eb;
+  String uuid;
 
   public void start(Future<Void> startFuture) throws Exception {
-    logger.info("starting");
-    logger.info("config: " + config().toString());
 
+    logger.info("starup with config: " + config().toString());
+
+    // create a uuid for identifying instances of this verticle
+    uuid = UUID.randomUUID().toString();
     eb = vertx.eventBus();
 
     eb.consumer("ping-address", message -> {
+      logger.info(uuid + ": replying");
       message.reply("pong!");
     });
 
-    // wait 2 seconds before completing startup
+    // wait 1 second before completing startup
     vertx.setTimer(1000, tid -> {
-      logger.info("startup complete");
+      logger.info(uuid + ": startup complete");
       startFuture.complete();
     });
 

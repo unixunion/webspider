@@ -1,6 +1,6 @@
 // config options per service are as per: DeployOptions.java
 {
-  "environment": "production",
+  "environment": "testing",
   "services": ["com.deblox.myproject.PingVerticle"],
   "com.deblox.myproject.PingVerticle": {
     "config": {

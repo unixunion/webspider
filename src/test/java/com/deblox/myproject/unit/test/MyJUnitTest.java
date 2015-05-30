@@ -1,14 +1,11 @@
 package com.deblox.myproject.unit.test;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpServer;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import org.junit.After;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,29 +36,6 @@ public class MyJUnitTest {
               }
             });
   }
-
-  @After
-  public void after(TestContext context) {
-//    Async async = context.async();
-//    vertx.close(new Handler<AsyncResult<Void>>() {
-//      @Override
-//      public void handle(AsyncResult<Void> event) {
-//        System.console().printf("?");
-//      }
-//    });
-  }
-
-//  @Test
-//  public void test1(TestContext test) {
-//    // Send a request and get a response
-//    HttpClient client = vertx.createHttpClient();
-//    Async async = test.async();
-//    client.getNow(8080, "localhost", "/", resp -> {
-//      resp.bodyHandler(body -> test.assertEquals("foo", body.toString()));
-//      client.close();
-//      async.complete();
-//    });
-//  }
 
   @Test
   public void test2(TestContext test) {

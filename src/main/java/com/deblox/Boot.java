@@ -16,11 +16,10 @@ import net.sourceforge.argparse4j.inf.Namespace;
 /**
  * Created by Kegan Holtzhausen on 29/05/14.
  *
- * This loads the config and then starts the main application
+ * This loads the config and then starts the main application services
  *
  */
 public class Boot extends AbstractVerticle {
-
   JsonObject config;
 
   private static final Logger logger = LoggerFactory.getLogger(Boot.class);
@@ -48,10 +47,12 @@ public class Boot extends AbstractVerticle {
     } else {
       DebloxRunner.runJava("src/main/java", Boot.class, false, ns.get("conf"));
     }
+
   }
 
   @Override
   public void start(final Future<Void> startedResult) {
+
     logger.info("\n" +
             "████████▄     ▄████████ ▀█████████▄   ▄█        ▄██████▄  ▀████    ▐████▀      ▀█████████▄   ▄██████▄   ▄██████▄      ███     \n" +
             "███   ▀███   ███    ███   ███    ███ ███       ███    ███   ███▌   ████▀         ███    ███ ███    ███ ███    ███ ▀█████████▄ \n" +
@@ -69,11 +70,12 @@ public class Boot extends AbstractVerticle {
     if (config.equals(new JsonObject())) {
       logger.warn("you have no config here!");
     } else {
-      logger.info("config: " + config.toString());
+      logger.info("config: " + config);
     }
 
     // Start each class mentioned in services
     for (final Object service : config.getJsonArray("services", new JsonArray())) {
+
       logger.info("deploying service: " + service);
 
       // get the config for the named service
@@ -82,7 +84,6 @@ public class Boot extends AbstractVerticle {
 
       // See DeploymentOptions.fromJson for all the possible configurables
       DeploymentOptions serviceConfig = new DeploymentOptions(serviceConfigJson);
-      logger.info("service's config: " + serviceConfig.toJson().toString());
 
       vertx.deployVerticle(service.toString(), serviceConfig, res -> {
 
@@ -94,9 +95,12 @@ public class Boot extends AbstractVerticle {
         }
 
       });
+
     }
 
     logger.info("startup complete");
+
+    startedResult.complete();
 
   }
 }

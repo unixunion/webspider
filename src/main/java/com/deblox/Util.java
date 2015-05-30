@@ -35,4 +35,29 @@ public class Util {
     }
   }
 
+  /*
+  classpath resource hunting config loader
+   */
+  static public JsonObject loadConfig(Object o, String file) {
+
+    try (InputStream stream = o.getClass().getResourceAsStream(file)) {
+      StringBuilder sb = new StringBuilder();
+      BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+
+      String line = reader.readLine();
+      while (line != null) {
+        sb.append(line).append('\n');
+        line = reader.readLine();
+      }
+
+      return new JsonObject(sb.toString());
+
+    } catch (IOException e) {
+      System.err.println("Unable to load config, returning with nothing");
+      e.printStackTrace();
+      return new JsonObject();
+    }
+
+  }
+
 }
