@@ -74,23 +74,23 @@ public class Boot extends AbstractVerticle {
     }
 
     // Start each class mentioned in services
-    for (final Object service : config.getJsonArray("services", new JsonArray())) {
+    for (final Object serviceClassName : config.getJsonArray("services", new JsonArray())) {
 
-      logger.info("deploying service: " + service);
+      logger.info("deploying service: " + serviceClassName);
 
       // get the config for the named service
-      JsonObject serviceConfigJson = config.getJsonObject(service.toString(), new JsonObject());
+      JsonObject serviceConfigJson = config.getJsonObject(serviceClassName.toString(), new JsonObject());
       logger.info("serviceConfigJson: " + serviceConfigJson);
 
       // See DeploymentOptions.fromJson for all the possible configurables
       DeploymentOptions serviceConfig = new DeploymentOptions(serviceConfigJson);
 
-      vertx.deployVerticle(service.toString(), serviceConfig, res -> {
+      vertx.deployVerticle(serviceClassName.toString(), serviceConfig, res -> {
 
         if (res.succeeded()) {
-          logger.info("successfully deployed service: " + service);
+          logger.info("successfully deployed service: " + serviceClassName);
         } else {
-          logger.error("failure while deploying service: " + service);
+          logger.error("failure while deploying service: " + serviceClassName);
           res.cause().printStackTrace();
         }
 
