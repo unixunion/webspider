@@ -1,12 +1,47 @@
-# deBlox Vert.x template
+# deBlox Vert.x 3 template
 
-Modified version of [vertx-gradle-template](https://github.com/vert-x/vertx-gradle-template). 
+a modified version of [vertx-gradle-template](https://github.com/vert-x/vertx-gradle-template). 
 
 ## features
 
-* Vert.x 3
-* Boot Class
-* Logback
+* vert.x 3
+* boot class
+* logback
+
+## boot class
+
+`Boot.java` reads a specified *conf.json* file and starts up the classes as desribed in the config. each verticle has its own configuration's within the *conf.json*. example:
+
+```json
+{
+  "conf_source": "this is the root config file",
+  "vertx_options": {
+    "blocked_thread_check_period": 1000,
+    "max_event_loop_execute_time": 2000000000,
+    "max_worker_execute_time": 60000000000,
+    "quorum_size": 1,
+    "ha_group": "__DEFAULT__",
+    "ha_enabled": false,
+    "metrics_enabled": false
+  },
+  "services": ["com.deblox.myproject.PingVerticle"],
+  "com.deblox.myproject.PingVerticle": {
+    "config": {
+      "foo": "bar",
+      "baz": {}
+    },
+    "worker": false,
+    "multiThreaded": false,
+    "isolationGroup": null,
+    "ha": false,
+    "extraClasspath": null,
+    "instances": 1,
+    "redeploy": true,
+    "redeployScanPeriod": 250,
+    "redeployGracePeriod": 1000
+  }
+}
+```
 
 ## idea
 
@@ -30,7 +65,7 @@ the Boot.java class can be run directly and accepts `-conf` argument for specifi
 
 ## building fatJar
 
-The gradle task *shadowJar* will build a executable jar
+the gradle task *shadowJar* will build a executable jar.
 
 ```
 ./gradlew shadowJar
@@ -38,7 +73,7 @@ The gradle task *shadowJar* will build a executable jar
 
 ## running
 
-When running as a fatJar, remember to specify the alternate logging implementation.
+when running as a fatJar, remember to specify the alternate logging implementation.
 
 
 ```
