@@ -28,7 +28,7 @@ dependencies {
 }
 
 test {
-    systemProperty 'vertx.logger-delegate-factory-class-name', "io.vertx.core.logging.impl.SLF4JLogDelegateFactory"
+    systemProperty 'vertx.logger-delegate-factory-class-name', "io.vertx.core.logging.SLF4JLogDelegateFactory"
 }
 
 shadowJar {
@@ -43,7 +43,7 @@ shadowJar {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.2.1'
+    gradleVersion = '2.4'
 }
 
 test.outputs.upToDateWhen { false }

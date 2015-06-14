@@ -3,7 +3,7 @@ package com.deblox;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.impl.LoggerFactory;
+import io.vertx.core.logging.LoggerFactory;
 
 import java.io.File;
 import java.util.function.Consumer;
@@ -28,12 +28,12 @@ public class DebloxRunner {
     run(runDir, clazz.getName(), options, confFile);
   }
 
-  public static void runScript(String prefix, String scriptName, boolean clustered) {
-    File file = new File(scriptName);
-    String dirPart = file.getParent();
-    String scriptDir = prefix + dirPart;
-    DebloxRunner.run(scriptDir, scriptDir + "/" + file.getName(), clustered);
-  }
+//  public static void runScript(String prefix, String scriptName, boolean clustered) {
+//    File file = new File(scriptName);
+//    String dirPart = file.getParent();
+//    String scriptDir = prefix + dirPart;
+//    DebloxRunner.run(scriptDir, scriptDir + "/" + file.getName(), clustered);
+//  }
 
 //  public static void runScript(String prefix, String scriptName, VertxOptions options) {
 //    File file = new File(scriptName);
@@ -42,9 +42,9 @@ public class DebloxRunner {
 //    DebloxRunner.run(scriptDir, scriptDir + "/" + file.getName(), options);
 //  }
 
-  public static void run(String runDir, String verticleID, boolean clustered) {
-    run(runDir, verticleID, new VertxOptions().setClustered(clustered), "/conf.json");
-  }
+//  public static void run(String runDir, String verticleID, boolean clustered) {
+//    run(runDir, verticleID, new VertxOptions().setClustered(clustered), "/conf.json");
+//  }
 
   public static void run(String runDir, String verticleID, VertxOptions options, String confFile) {
     logger.info("booting");
