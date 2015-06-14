@@ -16,7 +16,19 @@ to generate the idea files
 ./gradlew idea
 ```
 
-## building
+## testing
+
+```
+./gradlew test -i
+```
+
+## running from Idea
+
+the Boot.java class can be run directly and handles accepts -conf argument for specifiying config json.
+
+
+
+## building fatJar
 
 The gradle task *shadowJar* will build a executable jar
 
