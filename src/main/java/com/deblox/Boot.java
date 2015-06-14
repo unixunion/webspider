@@ -16,7 +16,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
 /**
  * Created by Kegan Holtzhausen on 29/05/14.
  *
- * This loads the config and then starts the main application services
+ * This loads the config and then starts the main application verticles
  *
  */
 public class Boot extends AbstractVerticle {
@@ -51,11 +51,11 @@ public class Boot extends AbstractVerticle {
   }
 
 
-//  public void run(io.vertx.core.impl.Args args,
-//                  String[] sargs) {
-//    logger.info("run");
-//  }
-
+  /**
+   * called when the module is deployed.
+   *
+   * @param startedResult
+   */
   @Override
   public void start(final Future<Void> startedResult) {
 
