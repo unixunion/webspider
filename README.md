@@ -3,13 +3,11 @@
 a modified version of [vertx-gradle-template](https://github.com/vert-x/vertx-gradle-template). 
 
 ## features
-
 * vert.x 3
 * boot class
 * logback
 
 ## boot class
-
 `Boot.java` reads a specified *conf.json* file and starts up the classes as desribed in the config. each verticle has its own configuration's within the *conf.json*. example:
 
 ```json
@@ -44,27 +42,23 @@ a modified version of [vertx-gradle-template](https://github.com/vert-x/vertx-gr
 ```
 
 ## idea
-
 to generate the idea files
 
-```
+```sh
 ./gradlew idea
 ```
 
 ## testing
 
-```
+```sh
 ./gradlew test -i
 ```
 
 ## running from Idea
-
 the Boot.java class can be run directly and accepts `-conf` argument for specifiying config json.
 
 
-
 ## building fatJar
-
 the gradle task *shadowJar* will build a executable jar.
 
 ```
@@ -72,7 +66,6 @@ the gradle task *shadowJar* will build a executable jar.
 ```
 
 ## running
-
 when running as a fatJar, remember to specify the alternate logging implementation.
 
 
