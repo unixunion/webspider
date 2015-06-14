@@ -8,6 +8,14 @@ Modified version of [vertx-gradle-template](https://github.com/vert-x/vertx-grad
 * Boot Class
 * Logback
 
+## idea
+
+to generate the idea files
+
+```
+./gradlew idea
+```
+
 ## building
 
 The gradle task *shadowJar* will build a executable jar
