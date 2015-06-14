@@ -24,7 +24,7 @@ to generate the idea files
 
 ## running from Idea
 
-the Boot.java class can be run directly and handles accepts -conf argument for specifiying config json.
+the Boot.java class can be run directly and accepts `-conf` argument for specifiying config json.
 
 
 
