@@ -39,7 +39,7 @@ public class PingVerticle extends AbstractVerticle {
 
   public void start(Future<Void> startFuture) throws Exception {
 
-    logger.info("starup with config: " + config().toString());
+    logger.info("startup with config: " + config().toString());
 
     // create a uuid for identifying instances of this verticle
     uuid = UUID.randomUUID().toString();
