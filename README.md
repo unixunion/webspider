@@ -1,6 +1,6 @@
 # deBlox Vert.x 3 template v1.0.0
 
-new
+new MASTER change
 
 a modified version of [vertx-gradle-template](https://github.com/vert-x/vertx-gradle-template). 
 
