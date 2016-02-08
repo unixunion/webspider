@@ -1,7 +1,7 @@
 // config options per service are as per: DeployOptions.java
 {
   "environment": "testing",
-  "services": ["com.deblox.myproject.PingVerticle"],
+  "services": ["com.deblox.myproject.PingVerticle", "com.deblox.servers.DxHttpServer"],
   "com.deblox.myproject.PingVerticle": {
     "config": {
       "foo": "bar",

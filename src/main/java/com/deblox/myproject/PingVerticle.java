@@ -24,6 +24,7 @@ import io.vertx.core.Future;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
+import java.sql.Time;
 import java.util.UUID;
 
 /*
@@ -48,6 +49,10 @@ public class PingVerticle extends AbstractVerticle {
     eb.consumer("ping-address", message -> {
       logger.info(uuid + ": replying");
       message.reply("pong!");
+    });
+
+    vertx.setPeriodic(1000, res-> {
+      eb.publish("broadcast", "broadcast");
     });
 
     // wait 1 second before completing startup

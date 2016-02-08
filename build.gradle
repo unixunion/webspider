@@ -13,6 +13,7 @@ if (!JavaVersion.current().java8Compatible) {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven {
         url = 'http://oss.sonatype.org/content/repositories/snapshots/'
@@ -21,6 +22,7 @@ repositories {
 
 dependencies {
     compile "io.vertx:vertx-core:$vertxVersion"
+    compile "io.vertx:vertx-web:$vertxVersion"
     compile "ch.qos.logback:logback-classic:$logbackVersion"
     compile "net.sourceforge.argparse4j:argparse4j:$argparseVersion"
     testCompile "junit:junit:$junitVersion"
