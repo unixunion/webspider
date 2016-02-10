@@ -44,7 +44,7 @@
                     eb.registerHandler("broadcast", function (msg) {
                         console.log(msg);
                     });
-                    eb.send("ping-address", "list-vpns", function(msg) {
+                    eb.send("DxTemplateEngineImpl", "refresh", function(msg) {
                         console.log(msg);
                     });
                 }

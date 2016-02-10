@@ -1,7 +1,7 @@
 
 package com.deblox.servers;
 
-import com.deblox.templ.MVELTemplateEngine;
+import com.deblox.templating.DxTemplateEngine;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
@@ -35,7 +35,7 @@ public class DxHttpServer extends AbstractVerticle {
     router.route("/eventbus/*").handler(ebHandler);
 
     // dynamic router for "template" driven content
-    router.route("/dynamic/*").handler(TemplateHandler.create(MVELTemplateEngine.create()));
+    router.route("/dynamic/*").handler(TemplateHandler.create(DxTemplateEngine.create()));
 
     // Serve the static pages
     router.route().handler(StaticHandler.create());

@@ -1,6 +1,6 @@
-package com.deblox.templ.impl;
+package com.deblox.templating.impl;
 
-import com.deblox.templ.MVELTemplateRegistry;
+import com.deblox.templating.DxTemplateRegistry;
 import org.mvel2.templates.CompiledTemplate;
 import org.mvel2.templates.TemplateError;
 
@@ -12,7 +12,7 @@ import java.util.Set;
 /**
  * Created by keghol on 10/02/16.
  */
-public class MVELTemplateRegistryImpl implements MVELTemplateRegistry {
+public class DxTemplateRegistryImpl implements DxTemplateRegistry {
 
   private Map<String, CompiledTemplate> NAMED_TEMPLATES = new HashMap<>();
 

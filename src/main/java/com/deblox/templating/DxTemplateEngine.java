@@ -1,12 +1,14 @@
 
-package com.deblox.templ;
+package com.deblox.templating;
 
 import io.vertx.codegen.annotations.VertxGen;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.templ.TemplateEngine;
-import com.deblox.templ.impl.MVELTemplateEngineImpl;
+import com.deblox.templating.impl.DxTemplateEngineImpl;
 
 @VertxGen
-public interface MVELTemplateEngine extends TemplateEngine {
+public interface DxTemplateEngine extends TemplateEngine {
 
   /**
    * Default max number of templates to cache
@@ -28,8 +30,8 @@ public interface MVELTemplateEngine extends TemplateEngine {
    *
    * @return  the engine
    */
-  static MVELTemplateEngine create() {
-    return new MVELTemplateEngineImpl();
+  static DxTemplateEngine create() {
+    return new DxTemplateEngineImpl();
   }
 
   /**
@@ -38,7 +40,7 @@ public interface MVELTemplateEngine extends TemplateEngine {
    * @param extension  the extension
    * @return a reference to this for fluency
    */
-  MVELTemplateEngine setExtension(String extension);
+  DxTemplateEngine setExtension(String extension);
 
   /**
    * Set the max cache size for the engine
@@ -46,5 +48,9 @@ public interface MVELTemplateEngine extends TemplateEngine {
    * @param maxCacheSize  the maxCacheSize
    * @return a reference to this for fluency
    */
-  MVELTemplateEngine setMaxCacheSize(int maxCacheSize);
+  DxTemplateEngine setMaxCacheSize(int maxCacheSize);
+
+
+  void handleEventBus(Message<?> msg);
+
 }

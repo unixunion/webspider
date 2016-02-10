@@ -21,6 +21,7 @@ limitations under the License.
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
+import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -42,6 +43,8 @@ import net.sourceforge.argparse4j.inf.Namespace;
  *
  */
 public class Boot extends AbstractVerticle {
+
+//  public static Vertx vx = Vertx.vertx();
   JsonObject config;
   EventBus eb;
 
@@ -141,6 +144,5 @@ public class Boot extends AbstractVerticle {
       stopFuture.complete();
     });
   }
-
 
 }
