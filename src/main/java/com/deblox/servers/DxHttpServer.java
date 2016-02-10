@@ -32,13 +32,27 @@ public class DxHttpServer extends AbstractVerticle {
 
     // Create the event bus bridge and add it to the router.
     SockJSHandler ebHandler = SockJSHandler.create(vertx).bridge(opts);
-    router.route("/eventbus/*").handler(ebHandler);
+
+    router.route("/eventbus/*").handler(ebHandler).failureHandler(frc -> {
+      frc.response().end("Error on the eventbus, no human should ever see this");
+    });
 
     // dynamic router for "template" driven content
-    router.route("/dynamic/*").handler(TemplateHandler.create(DxTemplateEngine.create()));
+    router.route("/dynamic/*").handler(TemplateHandler.create(DxTemplateEngine.create())).failureHandler(frc -> {
+      frc.response().end("Something bad happened with the templates, customize this behaviour in DxHttpServer");
+    });
 
-    // Serve the static pages
-    router.route().handler(StaticHandler.create());
+    // redirect / request to the dynamic template start page
+    router.get("/").handler(res -> {
+      res.response().setStatusCode(302);
+      res.response().headers().set("Location", "/dynamic/index.templ");
+      res.response().end();
+    });
+
+    // Serve the static
+    router.route().handler(StaticHandler.create()).failureHandler(frc -> {
+      frc.response().end("Error trying to locate static content, customize this behaviour in DxHttpServer");
+    });
 
     // the server itself
     vertx.createHttpServer().requestHandler(router::accept).listen(config().getInteger("port", 8080));

@@ -1,9 +1,7 @@
 package com.deblox.templating.impl;
 
-import com.deblox.Boot;
 import com.deblox.myproject.PingVerticle;
 import com.deblox.templating.DxTemplateRegistry;
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -71,10 +69,34 @@ public class DxTemplateEngineImpl extends CachingTemplateEngine<CompiledTemplate
     return this;
   }
 
+  /**
+   * handleEventBus is a hook to allow control over the TemplateEngine from the eventbus. Implement methods like:
+   *  cache-purge-all
+   *  ...
+   * @param msg
+   */
   @Override
   public void handleEventBus(Message<?> msg) {
-    logger.info("msg: " + msg.body().toString());
-    msg.reply("Acknowledged");
+    try {
+      logger.info("msg: " + msg.body().toString());
+      JsonObject message = (JsonObject) msg.body();
+      switch (message.getString("action")) {
+        case "cache-purge-all":
+          logger.info("Purging all cache");
+          cache.forEachEntry(1000, res -> {
+            cache.remove(res.getKey());
+          });
+          msg.reply("Cache Purged");
+          break;
+        default:
+          logger.info("Unknown command: " + msg.body());
+          msg.reply("Unknown Command");
+          break;
+      }
+    } catch (ClassCastException e) {
+      logger.error("Invalid message format, try JSON");
+      msg.reply("Invalid message format");
+    }
   }
 
   @Override
@@ -100,9 +122,16 @@ public class DxTemplateEngineImpl extends CachingTemplateEngine<CompiledTemplate
       variables.put("context", context);
       handler.handle(Future.succeededFuture(Buffer.buffer((String)TemplateRuntime.execute(template, context, variables, registry))));
     } catch (Exception ex) {
+      ex.printStackTrace();
       handler.handle(Future.failedFuture(ex));
     }
   }
 
+
+//  public void redirect(RoutingContext context, String url) {
+//    context.response().setStatusCode(302);
+//    context.response().headers().set("Location", url);
+//    context.response().end();
+//  }
 
 }
