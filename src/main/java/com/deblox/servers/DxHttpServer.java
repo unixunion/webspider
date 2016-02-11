@@ -48,7 +48,6 @@ public class DxHttpServer extends AbstractVerticle {
 
     // This cookie handler will be called for all routes
     router.route().handler(CookieHandler.create());
-    router.route().handler(BodyHandler.create());
     router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx))
             .setCookieHttpOnlyFlag(true)
             .setCookieSecureFlag(true));
@@ -92,12 +91,13 @@ public class DxHttpServer extends AbstractVerticle {
 //      ctx.next();
 //    });
 
-
-
     router.route("/eventbus/*").handler(ebHandler).failureHandler(frc -> {
       frc.response().setStatusCode(500);
       frc.response().end("Eventbus Error, " + frc.failure().getLocalizedMessage());
     });
+
+    // This must be below eventbus bridge
+    router.route().handler(BodyHandler.create());
 
     // Serve the static
     router.route("/static/*").handler(StaticHandler.create(webrootPath)).failureHandler(frc -> {
@@ -108,7 +108,7 @@ public class DxHttpServer extends AbstractVerticle {
     // Handles the actual login
     router.route("/loginhandler").handler(FormLoginHandler.create(dxAuthProvider).setDirectLoggedInOKURL("/"));
 
-    // dynamic router for "template" driven content
+    // Login templates
     router.route("/login/*").handler(TemplateHandler.create(dxTemplateEngine));
 
     // Any other requests require login
