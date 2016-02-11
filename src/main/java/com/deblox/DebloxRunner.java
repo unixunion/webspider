@@ -65,8 +65,8 @@ public class DebloxRunner {
   }
 
   public static void run(String runDir, String verticleID, VertxOptions options, String confFile) {
-    logger.info("booting");
-    System.setProperty("vertx.cwd", runDir);
+    logger.info("Booting");
+//    System.setProperty("vertx.cwd", runDir + "/");
     Consumer<Vertx> runner = vertx -> {
       try {
         JsonObject config = Util.loadConfig(confFile);

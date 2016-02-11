@@ -16,7 +16,6 @@ import com.deblox.templating.DxTemplateEngine;
 import io.vertx.ext.web.templ.impl.CachingTemplateEngine;
 import org.mvel2.templates.CompiledTemplate;
 import org.mvel2.templates.TemplateCompiler;
-import org.mvel2.templates.TemplateError;
 import org.mvel2.templates.TemplateRuntime;
 
 import java.nio.file.Path;
@@ -56,7 +55,7 @@ public class DxTemplateEngineImpl extends CachingTemplateEngine<CompiledTemplate
     logger.info("Registering hander on " + this.getClass().getSimpleName());
     PingVerticle.eb.consumer(this.getClass().getSimpleName(), res -> {
       logger.info("Event Processing");
-      this.handleEventBus((Message<?>) res);
+      this.handleEventBus(res);
     });
 
   }

@@ -1,20 +1,22 @@
 
 package com.deblox.servers;
 
+import com.deblox.auth.DxAuthProvider;
+import com.deblox.auth.impl.DxAuthProviderImpl;
 import com.deblox.templating.DxTemplateEngine;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-import io.vertx.ext.web.Cookie;
+import io.vertx.core.net.JksOptions;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.handler.CookieHandler;
-import io.vertx.ext.web.handler.StaticHandler;
-import io.vertx.ext.web.handler.TemplateHandler;
+import io.vertx.ext.web.handler.*;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
+import io.vertx.ext.web.sstore.LocalSessionStore;
 
 
 public class DxHttpServer extends AbstractVerticle {
@@ -29,8 +31,12 @@ public class DxHttpServer extends AbstractVerticle {
     // Set the default configs
     String webrootPath = config().getString("webroot", "webroot");
     String templatePath = config().getString("templates", "templates");
+    String jksFile = config().getString("jksFile", "/server-keystore.jks");
+    String jksPassword = config().getString("jksPassword", "wibble");
 
     Router router = Router.router(vertx);
+    DxAuthProvider dxAuthProvider = new DxAuthProviderImpl();
+    DxTemplateEngine dxTemplateEngine = DxTemplateEngine.create(templatePath);
 
     // Allow events for the designated addresses in/out of the event bus bridge
     BridgeOptions opts = new BridgeOptions()
@@ -42,11 +48,11 @@ public class DxHttpServer extends AbstractVerticle {
 
     // This cookie handler will be called for all routes
     router.route().handler(CookieHandler.create());
-
-    router.route("/eventbus/*").handler(ebHandler).failureHandler(frc -> {
-      frc.response().setStatusCode(500);
-      frc.response().end("Eventbus Error, " + frc.failure().getLocalizedMessage());
-    });
+    router.route().handler(BodyHandler.create());
+    router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx))
+            .setCookieHttpOnlyFlag(true)
+            .setCookieSecureFlag(true));
+    router.route().handler(UserSessionHandler.create(dxAuthProvider));
 
     // redirect / request to the dynamic template start page
     router.get("/").handler(res -> {
@@ -56,26 +62,41 @@ public class DxHttpServer extends AbstractVerticle {
     });
 
     // Cookies
-    router.route().handler(ctx -> {
-      Cookie someCookie = ctx.getCookie("visits");
+//    router.route().handler(ctx -> {
+//      Cookie someCookie = ctx.getCookie("visits");
+//
+//      long visits = 0;
+//      if (someCookie != null) {
+//        String cookieValue = someCookie.getValue();
+//        try {
+//          visits = Long.parseLong(cookieValue);
+//        } catch (NumberFormatException e) {
+//          visits = 0L;
+//        }
+//      }
+//
+//      // increment the tracking
+//      visits++;
+//      // Add a cookie - this will get written back in the response automatically
+//      ctx.addCookie(Cookie.cookie("visits", "" + visits));
+//      ctx.next();
+//    });
 
-      long visits = 0;
-      if (someCookie != null) {
-        String cookieValue = someCookie.getValue();
-        try {
-          visits = Long.parseLong(cookieValue);
-        } catch (NumberFormatException e) {
-          visits = 0l;
-        }
-      }
 
-      // increment the tracking
-      visits++;
+    // Session handling
+//    router.route().handler(ctx -> {
+//      Session session = ctx.session();
+//      Integer cnt = session.get("hitcount");
+//      cnt = (cnt == null ? 0 : cnt) + 1;
+//      session.put("hitcount", cnt);
+//      ctx.next();
+//    });
 
-      // Add a cookie - this will get written back in the response automatically
-      ctx.addCookie(Cookie.cookie("visits", "" + visits));
 
-      ctx.next();
+
+    router.route("/eventbus/*").handler(ebHandler).failureHandler(frc -> {
+      frc.response().setStatusCode(500);
+      frc.response().end("Eventbus Error, " + frc.failure().getLocalizedMessage());
     });
 
     // Serve the static
@@ -84,15 +105,31 @@ public class DxHttpServer extends AbstractVerticle {
       frc.response().end("Static Content Error, " + frc.failure().getLocalizedMessage());
     });
 
+    // Handles the actual login
+    router.route("/loginhandler").handler(FormLoginHandler.create(dxAuthProvider).setDirectLoggedInOKURL("/"));
+
     // dynamic router for "template" driven content
-    router.route().handler(TemplateHandler.create(DxTemplateEngine.create(templatePath))).failureHandler(frc -> {
+    router.route("/login/*").handler(TemplateHandler.create(dxTemplateEngine));
+
+    // Any other requests require login
+    router.route().handler(RedirectAuthHandler.create(dxAuthProvider, "/login/login.templ"));
+
+    // dynamic router for "template" driven content
+    router.route().handler(TemplateHandler.create(dxTemplateEngine)).failureHandler(frc -> {
       frc.response().setStatusCode(500);
       frc.response().end("Template Error, " + frc.failure().getLocalizedMessage());
     });
 
+    JksOptions jksOptions = new JksOptions()
+            .setPath(jksFile)
+            .setPassword(jksPassword);
+
+    HttpServerOptions httpServerOptions = new HttpServerOptions()
+            .setSsl(true)
+            .setKeyStoreOptions(jksOptions);
 
     // the server itself
-    vertx.createHttpServer().requestHandler(router::accept).listen(config().getInteger("port", 8080));
+    vertx.createHttpServer(httpServerOptions).requestHandler(router::accept).listen(config().getInteger("port", 8080));
 
     eb = vertx.eventBus();
 

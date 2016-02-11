@@ -21,11 +21,6 @@ public interface DxTemplateEngine extends TemplateEngine {
   String DEFAULT_TEMPLATE_EXTENSION = "templ";
 
   /**
-   * Default templates location
-   */
-//  String DEFAULT_TEMPLATE_DIR = "templates";
-
-  /**
    * Create a template engine using defaults
    *
    * @return  the engine

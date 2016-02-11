@@ -21,6 +21,9 @@ repositories {
 }
 
 dependencies {
+    compile "commons-io:commons-io:2.4"
+    compile "io.vertx:vertx-auth-shiro:$vertxVersion"
+    compile "io.vertx:vertx-auth-common:$vertxVersion"
     compile "io.vertx:vertx-core:$vertxVersion"
     compile "io.vertx:vertx-web:$vertxVersion"
     compile "io.vertx:vertx-codegen:$vertxVersion"

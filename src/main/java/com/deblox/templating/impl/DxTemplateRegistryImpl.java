@@ -1,6 +1,8 @@
 package com.deblox.templating.impl;
 
 import com.deblox.templating.DxTemplateRegistry;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import org.mvel2.templates.CompiledTemplate;
 import org.mvel2.templates.TemplateError;
 
@@ -14,6 +16,8 @@ import java.util.Set;
  */
 public class DxTemplateRegistryImpl implements DxTemplateRegistry {
 
+  private static final Logger logger = LoggerFactory.getLogger(DxTemplateRegistryImpl.class);
+
   private Map<String, CompiledTemplate> NAMED_TEMPLATES = new HashMap<>();
 
   public void addNamedTemplate(String name, CompiledTemplate template) {
@@ -21,6 +25,7 @@ public class DxTemplateRegistryImpl implements DxTemplateRegistry {
   }
 
   public CompiledTemplate getNamedTemplate(String name) {
+    logger.info("Templates: " + NAMED_TEMPLATES.toString());
     CompiledTemplate t = NAMED_TEMPLATES.get(name);
     if (t == null) throw new TemplateError("no named template exists '" + name + "'");
     return t;

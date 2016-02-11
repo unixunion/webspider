@@ -29,7 +29,9 @@
   "com.deblox.servers.DxHttpServer": {
     "config": {
       "webroot": "webroot",
-      "templates": "templates"
+      "templates": "templates",
+      "jksFile": "server-keystore.jks",
+      "jksPassword": "wibble"
     }
   }
 }
