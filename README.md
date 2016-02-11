@@ -2,7 +2,10 @@
 a modified version of [vertx-gradle-template](https://github.com/vert-x/vertx-gradle-template). 
 
 ## features
-* vert.x 3.1.0
+* vert.x 3.2.1
+* vertx web
+* materialize css
+* websocket
 * boot class
 * logback
 
