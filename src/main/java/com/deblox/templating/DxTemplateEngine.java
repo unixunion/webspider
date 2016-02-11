@@ -23,15 +23,15 @@ public interface DxTemplateEngine extends TemplateEngine {
   /**
    * Default templates location
    */
-  String DEFAULT_TEMPLATE_DIR = "templates";
+//  String DEFAULT_TEMPLATE_DIR = "templates";
 
   /**
    * Create a template engine using defaults
    *
    * @return  the engine
    */
-  static DxTemplateEngine create() {
-    return new DxTemplateEngineImpl();
+  static DxTemplateEngine create(String templateDir) {
+    return new DxTemplateEngineImpl(templateDir);
   }
 
   /**

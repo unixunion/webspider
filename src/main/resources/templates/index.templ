@@ -3,81 +3,34 @@
 
     <!--Import materialize.css-->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link type="text/css" rel="stylesheet" href="/css/materialize.min.css"  media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="/static/css/materialize.min.css"  media="screen,projection"/>
 
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-    <script type="text/javascript">
-        var eb;
-        var reconnector;
-    </script>
+    <!-- The App Vars -->
+    <script type="text/javascript" src="/static/app/vars.js"></script>
 
 </head>
 <body>
-    <script src="/js/jquery.js"></script>
-    <script type="text/javascript" src="/js/materialize.min.js"></script>
-    <script type="text/javascript" src="/js/sockjs.min.js"></script>
-    <script src="/js/vertx.js"></script>
+    <script src="/static/js/jquery.js"></script>
+    <script type="text/javascript" src="/static/js/materialize.min.js"></script>
+    <script type="text/javascript" src="/static/js/sockjs.min.js"></script>
+    <script src="/static/js/vertx.js"></script>
 
-    <script type="text/javascript" charset="utf-8">
+    <!-- The App -->
+    <script type="text/javascript" charset="utf-8" src="/static/app/app.js"></script>
 
-        $(document).ready(function(){
-
-            // connect to eventbus
-            initialiseEventbus = function() {
-                console.log("Checking Connection");
-
-                if (eb != null && eb.readyState() == 1) {
-                    clearInterval(reconnector);
-                    return;
-                };
-
-                console.log("New Connection");
-                eb = new vertx.EventBus("/eventbus/", vertxbus_ping_interval = 1000);
-
-                eb.onopen = function () {
-                    console.log("Registering topics");
-                    clearInterval(reconnector);
-                    // subscribe to broadcast messages from the server
-                    eb.registerHandler("broadcast", function (msg) {
-                        console.log(msg);
-                    });
-
-                    msg = {};
-                    msg['action'] = 'cache-purge-all'
-
-                    eb.send("DxTemplateEngineImpl", msg, function(msg) {
-                        console.log(msg);
-                    });
-                }
-
-                eb.onclose = function () {
-                    console.log("Disconnected");
-                    clearInterval(reconnector);
-                    reconnector = setInterval(initialiseEventbus, 5000);
-                }
-            }
-
-             // call first time connect
-            initialiseEventbus();
-
-        });
-
-    </script>
-
+    <!-- Include Nav Template -->
     @includeNamed{'nav.templ'}
 
-    <script>
-      $(".button-collapse").sideNav();
-    </script>
-Hello @{context.get("foo")} and @{context.get("bar")}
-Request path is @{context.request().path()}
+    Hello @{context.get("foo")} and @{context.get("bar")}
+    Request path is @{context.request().path()}
+
+    @foreach{entry: context.request().headers().entries()}
+    @{entry.key}: @{entry.value}<br>
+    @end{}
+
 </body>
 </html>
 
-/*
-@foreach{entry: context.request().headers().entries()}
-@{entry.key}: @{entry.value}<br>
-@end{}
-*/

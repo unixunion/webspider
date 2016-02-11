@@ -25,5 +25,11 @@
     "redeploy": true,
     "redeployScanPeriod": 250,
     "redeployGracePeriod": 1000
+  },
+  "com.deblox.servers.DxHttpServer": {
+    "config": {
+      "webroot": "webroot",
+      "templates": "templates"
+    }
   }
 }

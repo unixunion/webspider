@@ -16,6 +16,7 @@ import com.deblox.templating.DxTemplateEngine;
 import io.vertx.ext.web.templ.impl.CachingTemplateEngine;
 import org.mvel2.templates.CompiledTemplate;
 import org.mvel2.templates.TemplateCompiler;
+import org.mvel2.templates.TemplateError;
 import org.mvel2.templates.TemplateRuntime;
 
 import java.nio.file.Path;
@@ -23,15 +24,18 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.deblox.messaging.Responses.sendError;
+import static com.deblox.messaging.Responses.sendOK;
+
 public class DxTemplateEngineImpl extends CachingTemplateEngine<CompiledTemplate> implements DxTemplateEngine {
 
   private static final Logger logger = LoggerFactory.getLogger(DxTemplateEngineImpl.class);
   DxTemplateRegistry registry = new DxTemplateRegistryImpl();
 
-  public DxTemplateEngineImpl() {
+  public DxTemplateEngineImpl(String templateDir) {
     super(DEFAULT_TEMPLATE_EXTENSION, DEFAULT_MAX_CACHE_SIZE);
     logger.info("Creating MVELTemplateEngine instance");
-    PingVerticle.vx.fileSystem().readDir(DEFAULT_TEMPLATE_DIR, templateFiles-> {
+    PingVerticle.vx.fileSystem().readDir(templateDir, templateFiles-> {
       templateFiles.result().forEach(f -> {
         Path p = Paths.get(f);
         logger.info(p.getParent().getFileName());
@@ -86,11 +90,11 @@ public class DxTemplateEngineImpl extends CachingTemplateEngine<CompiledTemplate
           cache.forEachEntry(1000, res -> {
             cache.remove(res.getKey());
           });
-          msg.reply("Cache Purged");
+          sendOK(this.getClass().getSimpleName(), msg);
           break;
         default:
           logger.info("Unknown command: " + msg.body());
-          msg.reply("Unknown Command");
+          sendError(this.getClass().getSimpleName(), msg, "Unknown Command");
           break;
       }
     } catch (ClassCastException e) {
@@ -120,7 +124,7 @@ public class DxTemplateEngineImpl extends CachingTemplateEngine<CompiledTemplate
       }
       Map<String, RoutingContext> variables = new HashMap<>(1);
       variables.put("context", context);
-      handler.handle(Future.succeededFuture(Buffer.buffer((String)TemplateRuntime.execute(template, context, variables, registry))));
+      handler.handle(Future.succeededFuture(Buffer.buffer((String) TemplateRuntime.execute(template, context, variables, registry))));
     } catch (Exception ex) {
       ex.printStackTrace();
       handler.handle(Future.failedFuture(ex));

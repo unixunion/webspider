@@ -7,7 +7,9 @@ import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import io.vertx.ext.web.Cookie;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.CookieHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.TemplateHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
@@ -22,7 +24,12 @@ public class DxHttpServer extends AbstractVerticle {
 
   @Override
   public void start(Future<Void> startFuture) {
-    logger.info("Starting Up");
+    logger.info("Starting Up with Config: " + config().toString());
+
+    // Set the default configs
+    String webrootPath = config().getString("webroot", "webroot");
+    String templatePath = config().getString("templates", "templates");
+
     Router router = Router.router(vertx);
 
     // Allow events for the designated addresses in/out of the event bus bridge
@@ -33,26 +40,56 @@ public class DxHttpServer extends AbstractVerticle {
     // Create the event bus bridge and add it to the router.
     SockJSHandler ebHandler = SockJSHandler.create(vertx).bridge(opts);
 
-    router.route("/eventbus/*").handler(ebHandler).failureHandler(frc -> {
-      frc.response().end("Error on the eventbus, no human should ever see this");
-    });
+    // This cookie handler will be called for all routes
+    router.route().handler(CookieHandler.create());
 
-    // dynamic router for "template" driven content
-    router.route("/dynamic/*").handler(TemplateHandler.create(DxTemplateEngine.create())).failureHandler(frc -> {
-      frc.response().end("Something bad happened with the templates, customize this behaviour in DxHttpServer");
+    router.route("/eventbus/*").handler(ebHandler).failureHandler(frc -> {
+      frc.response().setStatusCode(500);
+      frc.response().end("Eventbus Error, " + frc.failure().getLocalizedMessage());
     });
 
     // redirect / request to the dynamic template start page
     router.get("/").handler(res -> {
       res.response().setStatusCode(302);
-      res.response().headers().set("Location", "/dynamic/index.templ");
+      res.response().headers().set("Location", "/index.templ");
       res.response().end();
     });
 
-    // Serve the static
-    router.route().handler(StaticHandler.create()).failureHandler(frc -> {
-      frc.response().end("Error trying to locate static content, customize this behaviour in DxHttpServer");
+    // Cookies
+    router.route().handler(ctx -> {
+      Cookie someCookie = ctx.getCookie("visits");
+
+      long visits = 0;
+      if (someCookie != null) {
+        String cookieValue = someCookie.getValue();
+        try {
+          visits = Long.parseLong(cookieValue);
+        } catch (NumberFormatException e) {
+          visits = 0l;
+        }
+      }
+
+      // increment the tracking
+      visits++;
+
+      // Add a cookie - this will get written back in the response automatically
+      ctx.addCookie(Cookie.cookie("visits", "" + visits));
+
+      ctx.next();
     });
+
+    // Serve the static
+    router.route("/static/*").handler(StaticHandler.create(webrootPath)).failureHandler(frc -> {
+      frc.response().setStatusCode(404);
+      frc.response().end("Static Content Error, " + frc.failure().getLocalizedMessage());
+    });
+
+    // dynamic router for "template" driven content
+    router.route().handler(TemplateHandler.create(DxTemplateEngine.create(templatePath))).failureHandler(frc -> {
+      frc.response().setStatusCode(500);
+      frc.response().end("Template Error, " + frc.failure().getLocalizedMessage());
+    });
+
 
     // the server itself
     vertx.createHttpServer().requestHandler(router::accept).listen(config().getInteger("port", 8080));
@@ -65,7 +102,7 @@ public class DxHttpServer extends AbstractVerticle {
 
   @Override
   public void stop(Future<Void> stopFuture) {
-    eb.publish("broadcast", "server going down");
+    eb.publish("broadcast", "DxHttpServer shutting down");
 
     vertx.setTimer(1000, tid -> {
       logger.info("shutdown");
