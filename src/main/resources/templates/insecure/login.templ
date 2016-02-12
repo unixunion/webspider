@@ -21,9 +21,6 @@
     <!-- The App -->
     <script type="text/javascript" charset="utf-8" src="/static/app/app.js"></script>
 
-    <!-- Include Nav Template -->
-    @includeNamed{'nav.templ'}
-
     <div class="row">
         <form action="/loginhandler" method="post" class="col s12">
           <div class="row">
@@ -37,8 +34,8 @@
               <input name="password" id="password" type="password" class="validate">
               <label for="password">Password</label>
             </div>
-            <div>
-            <input type="submit" value="Submit">
+            <div class="input-field col s12">
+            <button type="submit" class="waves-effect btn" value="Submit">Logon</button>
             </div>
           </div>
         </form>

@@ -31,14 +31,29 @@ public class DxHttpServer extends AbstractVerticle {
     // Set the default configs
     String webrootPath = config().getString("webroot", "webroot");
     String templatePath = config().getString("templates", "templates");
+    String insecureTemplatePath = templatePath + "/insecure";
     String jksFile = config().getString("jksFile", "/server-keystore.jks");
     String jksPassword = config().getString("jksPassword", "wibble");
 
     Router router = Router.router(vertx);
-    DxAuthProvider dxAuthProvider = new DxAuthProviderImpl();
-    DxTemplateEngine dxTemplateEngine = DxTemplateEngine.create(templatePath);
 
-    // Allow events for the designated addresses in/out of the event bus bridge
+    // User Auth Providers
+    DxAuthProvider dxAuthProvider = new DxAuthProviderImpl();
+
+    // JWT Provider
+//    JsonObject config = new JsonObject().put("keyStore", new JsonObject()
+//            .put("path", "keystore.jceks")
+//            .put("type", "jceks")
+//            .put("password", "secret"));
+//    AuthProvider jwtProvider = JWTAuth.create(vertx, config);
+
+    // TemplateEngine
+    DxTemplateEngine dxTemplateEngine = DxTemplateEngine.create(templatePath);
+    // TemplateEngine for the insecure templates e.g. login
+    DxTemplateEngine loginTemplateEngine = DxTemplateEngine.create(insecureTemplatePath);
+
+    // Allow Eventbus events for the designated addresses in/out of the event bus bridge
+    // This is insecure, and requires locking down
     BridgeOptions opts = new BridgeOptions()
             .addInboundPermitted(new PermittedOptions())
             .addOutboundPermitted(new PermittedOptions());
@@ -46,7 +61,7 @@ public class DxHttpServer extends AbstractVerticle {
     // Create the event bus bridge and add it to the router.
     SockJSHandler ebHandler = SockJSHandler.create(vertx).bridge(opts);
 
-    // This cookie handler will be called for all routes
+    // This cookie handler, session and usersession handler will be called for all routes
     router.route().handler(CookieHandler.create());
     router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx))
             .setCookieHttpOnlyFlag(true)
@@ -105,14 +120,14 @@ public class DxHttpServer extends AbstractVerticle {
       frc.response().end("Static Content Error, " + frc.failure().getLocalizedMessage());
     });
 
-    // Handles the actual login
+    // Handles the actual login POST
     router.route("/loginhandler").handler(FormLoginHandler.create(dxAuthProvider).setDirectLoggedInOKURL("/"));
 
-    // Login templates
-    router.route("/login/*").handler(TemplateHandler.create(dxTemplateEngine));
+    // "insecure" templates like login.
+    router.route("/insecure/*").handler(TemplateHandler.create(loginTemplateEngine, insecureTemplatePath, "text/html"));
 
     // Any other requests require login
-    router.route().handler(RedirectAuthHandler.create(dxAuthProvider, "/login/login.templ"));
+    router.route().handler(RedirectAuthHandler.create(dxAuthProvider, "/insecure/login.templ"));
 
     // dynamic router for "template" driven content
     router.route().handler(TemplateHandler.create(dxTemplateEngine)).failureHandler(frc -> {

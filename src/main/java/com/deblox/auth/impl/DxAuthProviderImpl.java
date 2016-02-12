@@ -36,7 +36,7 @@ public class DxAuthProviderImpl implements ClusterSerializable, DxAuthProvider {
       return;
     }
 
-    User user = new DxUser();
+    User user = new DxUser(authInfo.getString("username"), this);
     resultHandler.handle(Future.succeededFuture(user));
   }
 

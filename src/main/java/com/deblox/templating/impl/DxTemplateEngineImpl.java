@@ -33,7 +33,7 @@ public class DxTemplateEngineImpl extends CachingTemplateEngine<CompiledTemplate
 
   public DxTemplateEngineImpl(String templateDir) {
     super(DEFAULT_TEMPLATE_EXTENSION, DEFAULT_MAX_CACHE_SIZE);
-    logger.info("Creating MVELTemplateEngine instance");
+    logger.info("Creating MVELTemplateEngine instance: " + templateDir);
     PingVerticle.vx.fileSystem().readDir(templateDir, templateFiles-> {
       templateFiles.result().forEach(f -> {
         Path p = Paths.get(f);

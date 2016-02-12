@@ -25,7 +25,6 @@ public class DxTemplateRegistryImpl implements DxTemplateRegistry {
   }
 
   public CompiledTemplate getNamedTemplate(String name) {
-    logger.info("Templates: " + NAMED_TEMPLATES.toString());
     CompiledTemplate t = NAMED_TEMPLATES.get(name);
     if (t == null) throw new TemplateError("no named template exists '" + name + "'");
     return t;

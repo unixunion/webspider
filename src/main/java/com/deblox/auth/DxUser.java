@@ -51,5 +51,6 @@ public class DxUser extends AbstractUser {
   @Override
   public void setAuthProvider(AuthProvider authProvider) {
     logger.info("setAuthProvider");
+    this.dxAuth = (DxAuthProvider) authProvider;
   }
 }
