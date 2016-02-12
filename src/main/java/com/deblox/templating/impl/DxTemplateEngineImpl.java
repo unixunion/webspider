@@ -129,6 +129,6 @@ public class DxTemplateEngineImpl extends CachingTemplateEngine<CompiledTemplate
       handler.handle(Future.failedFuture(ex));
     }
   }
-  
+
 
 }

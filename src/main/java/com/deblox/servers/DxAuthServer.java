@@ -11,6 +11,10 @@ import static com.deblox.messaging.Responses.sendError;
 import static com.deblox.messaging.Responses.sendOK;
 
 /**
+ * Eventbus auth server,
+ *
+ * accepts a JsonObject with keys username, password, should validate this and return the principal.
+ *
  * Created by keghol on 12/02/16.
  */
 public class DxAuthServer extends AbstractVerticle {
