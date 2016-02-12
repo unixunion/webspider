@@ -8,6 +8,14 @@ import io.vertx.core.json.JsonObject;
  */
 public class Responses {
 
+  public static void sendOK(String className, Message<?> msg, JsonObject data) {
+    JsonObject response = new JsonObject();
+    response.put("status", "ok");
+    response.put("class", className);
+    response.put("data", data);
+    sendMsg(className, msg, response);
+  }
+
   public static void sendOK(String className, Message<?> msg) {
     JsonObject response = new JsonObject();
     response.put("status", "ok");

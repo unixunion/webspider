@@ -10,7 +10,7 @@
     "ha_enabled": false,
     "metrics_enabled": false
   },
-  "services": ["com.deblox.myproject.PingVerticle", "com.deblox.servers.DxHttpServer"],
+  "services": ["com.deblox.myproject.PingVerticle", "com.deblox.servers.DxHttpServer", "com.deblox.servers.DxAuthServer"],
   "com.deblox.myproject.PingVerticle": {
     "config": {
       "foo": "bar",

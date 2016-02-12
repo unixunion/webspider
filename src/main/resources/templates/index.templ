@@ -24,7 +24,7 @@
     <!-- Include Nav Template -->
     @includeNamed{'nav.templ'}
 
-    Hello @{context.get("foo")} and @{context.get("bar")}
+    Hello @{context.get("User")} and @{context.get("bar")}
     Request path is @{context.request().path()}
 
     @foreach{entry: context.request().headers().entries()}

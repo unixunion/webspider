@@ -130,10 +130,7 @@ public class DxHttpServer extends AbstractVerticle {
     router.route().handler(RedirectAuthHandler.create(dxAuthProvider, "/insecure/login.templ"));
 
     // dynamic router for "template" driven content
-    router.route().handler(TemplateHandler.create(dxTemplateEngine)).failureHandler(frc -> {
-      frc.response().setStatusCode(500);
-      frc.response().end("Template Error, " + frc.failure().getLocalizedMessage());
-    });
+    router.route().handler(TemplateHandler.create(dxTemplateEngine));
 
     JksOptions jksOptions = new JksOptions()
             .setPath(jksFile)

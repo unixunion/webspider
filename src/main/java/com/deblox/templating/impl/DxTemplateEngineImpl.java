@@ -129,12 +129,6 @@ public class DxTemplateEngineImpl extends CachingTemplateEngine<CompiledTemplate
       handler.handle(Future.failedFuture(ex));
     }
   }
-
-
-//  public void redirect(RoutingContext context, String url) {
-//    context.response().setStatusCode(302);
-//    context.response().headers().set("Location", url);
-//    context.response().end();
-//  }
+  
 
 }
