@@ -1,6 +1,6 @@
-package com.deblox.templating.impl;
+package com.deblox.web.templ.impl;
 
-import com.deblox.templating.DxTemplateRegistry;
+import com.deblox.web.templ.DxTemplateRegistry;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.mvel2.templates.CompiledTemplate;

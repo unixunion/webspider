@@ -10,7 +10,7 @@
     "ha_enabled": false,
     "metrics_enabled": false
   },
-  "services": ["com.deblox.myproject.PingVerticle", "com.deblox.servers.DxHttpServer", "com.deblox.servers.DxAuthServer"],
+  "services": ["com.deblox.myproject.Core", "com.deblox.myproject.PingVerticle", "com.deblox.servers.HttpServer", "com.deblox.servers.AuthVerticle"],
   "com.deblox.myproject.PingVerticle": {
     "config": {
       "foo": "bar",
@@ -26,7 +26,7 @@
     "redeployScanPeriod": 250,
     "redeployGracePeriod": 1000
   },
-  "com.deblox.servers.DxHttpServer": {
+  "com.deblox.servers.HttpServer": {
     "config": {
       "webroot": "webroot",
       "templates": "templates",

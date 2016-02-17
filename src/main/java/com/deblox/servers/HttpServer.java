@@ -1,13 +1,16 @@
 
 package com.deblox.servers;
 
-import com.deblox.auth.DxAuthProvider;
-import com.deblox.auth.impl.DxAuthProviderImpl;
-import com.deblox.templating.DxTemplateEngine;
+import com.deblox.web.handler.DxAuthProvider;
+import com.deblox.web.handler.DxBlogHandler;
+import com.deblox.web.handler.impl.DxAuthProviderImpl;
+import com.deblox.web.templ.DxTemplateEngine;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.net.JksOptions;
@@ -19,9 +22,9 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.sstore.LocalSessionStore;
 
 
-public class DxHttpServer extends AbstractVerticle {
+public class HttpServer extends AbstractVerticle {
 
-  private static final Logger logger = LoggerFactory.getLogger(DxHttpServer.class);
+  private static final Logger logger = LoggerFactory.getLogger(HttpServer.class);
   EventBus eb;
 
   @Override
@@ -50,7 +53,7 @@ public class DxHttpServer extends AbstractVerticle {
     // TemplateEngine
     DxTemplateEngine dxTemplateEngine = DxTemplateEngine.create(templatePath);
     // TemplateEngine for the insecure templates e.g. login
-    DxTemplateEngine loginTemplateEngine = DxTemplateEngine.create(insecureTemplatePath);
+    DxTemplateEngine loginDxTemplateEngine = DxTemplateEngine.create(insecureTemplatePath);
 
     // Allow Eventbus events for the designated addresses in/out of the event bus bridge
     // This is insecure, and requires locking down
@@ -106,31 +109,46 @@ public class DxHttpServer extends AbstractVerticle {
 //      ctx.next();
 //    });
 
-    router.route("/eventbus/*").handler(ebHandler).failureHandler(frc -> {
-      frc.response().setStatusCode(500);
-      frc.response().end("Eventbus Error, " + frc.failure().getLocalizedMessage());
-    });
+    router.route("/eventbus/*").handler(ebHandler);
 
     // This must be below eventbus bridge
     router.route().handler(BodyHandler.create());
 
     // Serve the static
-    router.route("/static/*").handler(StaticHandler.create(webrootPath)).failureHandler(frc -> {
-      frc.response().setStatusCode(404);
-      frc.response().end("Static Content Error, " + frc.failure().getLocalizedMessage());
-    });
+    router.route("/static/*").handler(StaticHandler.create(webrootPath));
 
     // Handles the actual login POST
-    router.route("/loginhandler").handler(FormLoginHandler.create(dxAuthProvider).setDirectLoggedInOKURL("/"));
+    router.route("/loginhandler").handler(FormLoginHandler.create(dxAuthProvider));
 
     // "insecure" templates like login.
-    router.route("/insecure/*").handler(TemplateHandler.create(loginTemplateEngine, insecureTemplatePath, "text/html"));
+    router.route("/insecure/*").handler(TemplateHandler.create(loginDxTemplateEngine, insecureTemplatePath, "text/html"));
+
 
     // Any other requests require login
     router.route().handler(RedirectAuthHandler.create(dxAuthProvider, "/insecure/login.templ"));
 
+    router.route(HttpMethod.POST, "/blog").handler(DxBlogHandler.create()).handler(res -> {
+      logger.info("back from post new blog");
+      res.next();
+    });
+    router.route(HttpMethod.GET, "/blog").handler(DxBlogHandler.create()).handler(res -> {
+      logger.info("back from get blog");
+//      res.response().headers().set("User", res.user().principal().getStrin/g("username"));
+//      res.response().putHeader("User", res.user().principal().toString());
+      res.put("Role", res.user().principal().getString("role"));
+      res.session().put("User", res.user().principal().getString("username"));
+
+      res.next();
+    });
+
     // dynamic router for "template" driven content
     router.route().handler(TemplateHandler.create(dxTemplateEngine));
+
+    // failure handler
+    router.route().failureHandler(ctx -> {
+      HttpServerResponse response = ctx.response();
+      response.end("Error Occurred");
+    });
 
     JksOptions jksOptions = new JksOptions()
             .setPath(jksFile)

@@ -1,9 +1,9 @@
-package com.deblox.templating;
+package com.deblox.web.templ;
 
 /**
  * Created by keghol on 10/02/16.
  */
-import com.deblox.templating.impl.DxTemplateRegistryImpl;
+import com.deblox.web.templ.impl.DxTemplateRegistryImpl;
 import org.mvel2.templates.CompiledTemplate;
 import org.mvel2.templates.TemplateRegistry;
 

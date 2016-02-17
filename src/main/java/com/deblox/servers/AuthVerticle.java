@@ -17,8 +17,8 @@ import static com.deblox.messaging.Responses.sendOK;
  *
  * Created by keghol on 12/02/16.
  */
-public class DxAuthServer extends AbstractVerticle {
-  private static final Logger logger = LoggerFactory.getLogger(DxAuthServer.class);
+public class AuthVerticle extends AbstractVerticle {
+  private static final Logger logger = LoggerFactory.getLogger(AuthVerticle.class);
 
   public void start(Future<Void> startFuture) throws Exception {
 
@@ -30,8 +30,8 @@ public class DxAuthServer extends AbstractVerticle {
       JsonObject authInfo = new JsonObject(message.body().toString());
 
       if ((authInfo.getString("username").equals("admin")) && (authInfo.getString("password").equals("admin"))) {
-        JsonObject userPrincipal = new JsonObject();
-        userPrincipal.put("LastLogon", "sometime ago");
+        JsonObject userPrincipal = authInfo;
+        userPrincipal.put("role", "admin");
         sendOK(this.getClass().getSimpleName(), message, userPrincipal);
 
       } else {

@@ -1,14 +1,13 @@
-package com.deblox.auth;
+package com.deblox.web.handler;
 
-import com.deblox.auth.impl.DxAuthProviderImpl;
+import com.deblox.web.handler.impl.DxAuthProviderImpl;
 import io.vertx.codegen.annotations.VertxGen;
-import io.vertx.ext.auth.AuthProvider;
 
 /**
  * Created by keghol on 11/02/16.
  */
 @VertxGen
-public interface DxAuthProvider extends AuthProvider {
+public interface DxAuthProvider extends io.vertx.ext.auth.AuthProvider {
 
   String DEFAUT_USERNAME_FIELD = "username";
 

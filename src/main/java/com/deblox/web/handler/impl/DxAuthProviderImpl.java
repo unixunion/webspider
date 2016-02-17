@@ -1,8 +1,8 @@
-package com.deblox.auth.impl;
+package com.deblox.web.handler.impl;
 
-import com.deblox.auth.DxAuthProvider;
+import com.deblox.myproject.Core;
+import com.deblox.web.handler.DxAuthProvider;
 import com.deblox.auth.DxUser;
-import com.deblox.myproject.PingVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -16,15 +16,19 @@ import io.vertx.ext.auth.User;
 import javax.naming.AuthenticationException;
 
 /**
+ * AuthProvider Implementation which will request authorization and principal from "auth-address"
+ * on the messagebus.
+ *
  * Created by keghol on 11/02/16.
  */
 public class DxAuthProviderImpl implements ClusterSerializable, DxAuthProvider {
 
   private static final Logger logger = LoggerFactory.getLogger(DxAuthProviderImpl.class);
   private String usernameField = DEFAUT_USERNAME_FIELD;
+  private String authAddress = "auth-address";
 
   /**
-   * Develop your auth method here
+   * authenticate against "auth-address"
    *
    * @param authInfo
    * @param resultHandler
@@ -45,17 +49,14 @@ public class DxAuthProviderImpl implements ClusterSerializable, DxAuthProvider {
       return;
     }
 
-    // Set the principal
-    JsonObject userPrincipal = new JsonObject();
-    userPrincipal.put(this.getUsernameField(), authInfo.getString("username"));
-
-    PingVerticle.eb.send("auth-address", authInfo, resp -> {
+    Core.eb.send(authAddress, authInfo, resp -> {
       if (resp.succeeded()) {
         JsonObject authEvent = new JsonObject(resp.result().body().toString());
         if (authEvent.getString("status").equals("ok")) {
           // Instantiate the user
-          User user = new DxUser(authEvent.getJsonObject("data"), this);
-          resultHandler.handle(Future.succeededFuture(user));
+          DxUser dxUser = new DxUser(authEvent.getJsonObject("data"), this);
+          resultHandler.handle(Future.succeededFuture(dxUser));
+
         } else {
           resultHandler.handle(Future.failedFuture(new AuthenticationException("Invalid Credentials")));
         }

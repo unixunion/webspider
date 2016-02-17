@@ -20,12 +20,12 @@
                 console.log(msg);
             });
 
-            msg = {};
-            msg['action'] = 'cache-purge-all'
-
-            eb.send("DxTemplateEngineImpl", msg, function(msg) {
-                console.log(msg);
-            });
+//            msg = {};
+//            msg['action'] = 'cache-purge-all'
+//
+//            eb.send("DxTemplateEngineImpl", msg, function(msg) {
+//                console.log(msg);
+//            });
         }
 
         eb.onclose = function () {

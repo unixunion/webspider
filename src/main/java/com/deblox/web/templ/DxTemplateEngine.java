@@ -1,11 +1,10 @@
 
-package com.deblox.templating;
+package com.deblox.web.templ;
 
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.eventbus.Message;
-import io.vertx.core.json.JsonObject;
+import com.deblox.web.templ.impl.DxTemplateEngineImpl;
 import io.vertx.ext.web.templ.TemplateEngine;
-import com.deblox.templating.impl.DxTemplateEngineImpl;
 
 @VertxGen
 public interface DxTemplateEngine extends TemplateEngine {

@@ -1,13 +1,18 @@
 # deBlox Vert.x 3 template v1.0.0
-a modified version of [vertx-gradle-template](https://github.com/vert-x/vertx-gradle-template). 
+a modified version of [vertx-gradle-template](https://github.com/vert-x/vertx-gradle-template). This template also contains
+a few starting points for building simple web stack.
 
 ## features
-* vert.x 3.2.1
-* vertx web
-* materialize css
-* websocket
-* boot class
-* logback
+* Vert.x 3.2.1
+* HTTP Web Server
+* WebSocket Client
+* WebSocket Bridge
+* MVEL Templating Engine
+* Authentication Provider
+* Authentication Handler on the EventBus
+* Materialize CSS
+* Modular Service Boot Class
+* Logback logging framework
 
 ## boot class
 `Boot.java` reads a specified *conf.json* file and starts up the classes as desribed in the config. each verticle has its own configuration's within the *conf.json*. example:
