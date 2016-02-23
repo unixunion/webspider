@@ -26,16 +26,10 @@
             <a href="#!" class="brand-logo">Logo</a>
             <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
             <ul class="right hide-on-med-and-down">
-                @{context.get('username') != null ? '<li><a href="/insecure/login.templ">Login</a></li>' : '<li><a href="/logout">Logout</a></li>'}
-                <li><a href="/blog">Blog</a></li>
-                <li><a href="/headers.templ">Headers</a></li>
-                @{context.get('role') == 'admin' ? '<li><a href="/admin.templ">Admin</a></li>' : ''}
+                <li><a href="/insecure/login.templ">Login</a></li>
             </ul>
             <ul class="side-nav" id="mobile-demo">
                 <li><a href="/insecure/login.templ">Login</a></li>
-                <li><a href="/blog">Blog</a></li>
-                <li><a href="/headers.templ">Headers</a></li>
-                @{context.get('role') == 'admin' ? '<li><a href="/admin.templ">Admin</a></li>' : ''}
             </ul>
         </div>
     </nav>

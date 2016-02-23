@@ -1,16 +1,12 @@
 // config options per service are as per: DeployOptions.java
 {
   "conf_source": "tld",
-  "vertx_options": {
-    "blocked_thread_check_period": 1000,
-    "max_event_loop_execute_time": 2000000000,
-    "max_worker_execute_time": 60000000000,
-    "quorum_size": 1,
-    "ha_group": "__DEFAULT__",
-    "ha_enabled": false,
-    "metrics_enabled": false
-  },
-  "services": ["com.deblox.myproject.Core", "com.deblox.myproject.PingVerticle", "com.deblox.servers.HttpServer", "com.deblox.servers.AuthVerticle"],
+  "services": [
+    "com.deblox.myproject.Core",
+    "com.deblox.myproject.PingVerticle",
+    "com.deblox.servers.HttpServer",
+    "com.deblox.servers.AuthVerticle"
+  ],
   "com.deblox.myproject.PingVerticle": {
     "config": {
       "foo": "bar",
@@ -33,5 +29,14 @@
       "jksFile": "server-keystore.jks",
       "jksPassword": "wibble"
     }
+  },
+  "vertx_options": {
+    "blocked_thread_check_period": 1000,
+    "max_event_loop_execute_time": 2000000000,
+    "max_worker_execute_time": 60000000000,
+    "quorum_size": 1,
+    "ha_group": "__DEFAULT__",
+    "ha_enabled": false,
+    "metrics_enabled": false
   }
 }

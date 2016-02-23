@@ -1,0 +1,6 @@
+    @includeNamed{'nav.templ'}
+
+    @{context.get('role') == 'admin' ? '<h2>Welcome Admin!</h3>' : '</h3>You\'re not admin!</h3>'}
+
+    @includeNamed{'end.templ'}
+

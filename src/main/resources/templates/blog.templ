@@ -1,7 +1,14 @@
+<!-- Include Nav Template -->
+@includeNamed{'nav.templ'}
+
 Blog Get
 
 The request path is @{context.request().path()}
 
-The variable 'User' from the session is @{context.session().get('User')}
+The variable 'User' from the session is @{context.session().get('user')}
 
-The value 'Role' from the context data is @{context.get('Role')}
+The value 'Role' from the context data is @{context.get('role')}
+
+<!-- Include Nav Template -->
+@includeNamed{'end.templ'}
+

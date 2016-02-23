@@ -49,6 +49,7 @@ public class DxTemplateEngineImpl extends CachingTemplateEngine<CompiledTemplate
             logger.info("Registering template: " + fileName);
             registry.addNamedTemplate(fileName, ct); //p.getParent().getFileName() + "/" +
           } catch (Exception e) {
+            e.printStackTrace();
             logger.warn("Skipping due to error " + f);
           }
         });

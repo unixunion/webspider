@@ -3,7 +3,6 @@ package com.deblox.servers;
 
 import com.deblox.web.handler.DxAuthProvider;
 import com.deblox.web.handler.DxBlogHandler;
-import com.deblox.web.handler.impl.DxAuthProviderImpl;
 import com.deblox.web.templ.DxTemplateEngine;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -11,10 +10,13 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.net.JksOptions;
+import io.vertx.ext.auth.AuthProvider;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.Session;
 import io.vertx.ext.web.handler.*;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
@@ -40,8 +42,10 @@ public class HttpServer extends AbstractVerticle {
 
     Router router = Router.router(vertx);
 
-    // User Auth Providers
-    DxAuthProvider dxAuthProvider = new DxAuthProviderImpl();
+    AuthProvider dxAuthProvider = DxAuthProvider.create();
+
+    FormLoginHandler formLoginHandler = FormLoginHandler.create(dxAuthProvider).setDirectLoggedInOKURL("/");
+
 
     // JWT Provider
 //    JsonObject config = new JsonObject().put("keyStore", new JsonObject()
@@ -109,6 +113,28 @@ public class HttpServer extends AbstractVerticle {
 //      ctx.next();
 //    });
 
+
+
+
+
+    // add variable data to the context for all following routers
+    router.route().handler(ctx -> {
+      try {
+        Session session = ctx.session();
+        Integer cnt = session.get("hitcount");
+        cnt = (cnt == null ? 0 : cnt) + 1;
+        session.put("hitcount", cnt);
+
+        ctx.put("role", ctx.user().principal().getString("role"));
+        ctx.session().put("user", ctx.user().principal().getString("username"));
+
+      } catch (Exception e) {
+        logger.error("User has no session data, perhaps not logged in?");
+      }
+      ctx.next();
+    });
+
+
     router.route("/eventbus/*").handler(ebHandler);
 
     // This must be below eventbus bridge
@@ -118,7 +144,18 @@ public class HttpServer extends AbstractVerticle {
     router.route("/static/*").handler(StaticHandler.create(webrootPath));
 
     // Handles the actual login POST
-    router.route("/loginhandler").handler(FormLoginHandler.create(dxAuthProvider));
+    router.route("/loginhandler").handler(formLoginHandler).failureHandler(res -> {
+      logger.error("Error logging in " + res.failed());
+      res.next();
+    });
+
+    // Handles the logout GET
+    router.route(HttpMethod.GET, "/logout").handler(ctx -> {
+      ctx.session().destroy();
+      ctx.response().setStatusCode(302);
+      ctx.response().headers().set("Location", "/");
+      ctx.response().end();
+    });
 
     // "insecure" templates like login.
     router.route("/insecure/*").handler(TemplateHandler.create(loginDxTemplateEngine, insecureTemplatePath, "text/html"));
@@ -127,17 +164,16 @@ public class HttpServer extends AbstractVerticle {
     // Any other requests require login
     router.route().handler(RedirectAuthHandler.create(dxAuthProvider, "/insecure/login.templ"));
 
+
     router.route(HttpMethod.POST, "/blog").handler(DxBlogHandler.create()).handler(res -> {
       logger.info("back from post new blog");
       res.next();
     });
+
     router.route(HttpMethod.GET, "/blog").handler(DxBlogHandler.create()).handler(res -> {
       logger.info("back from get blog");
-//      res.response().headers().set("User", res.user().principal().getStrin/g("username"));
-//      res.response().putHeader("User", res.user().principal().toString());
-      res.put("Role", res.user().principal().getString("role"));
-      res.session().put("User", res.user().principal().getString("username"));
-
+      res.put("role", res.user().principal().getString("role"));
+      res.session().put("user", res.user().principal().getString("username"));
       res.next();
     });
 

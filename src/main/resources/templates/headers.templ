@@ -1,5 +1,6 @@
-<html>
-<body>
+<!-- Include Nav Template -->
+@includeNamed{'nav.templ'}
+
 <h2>Here is some info about the HTTP request<h2>
 
 <h3>Request path:@{context.request().path()}</h3><br>
@@ -9,5 +10,5 @@
 @{entry.key}: @{entry.value}<br>
 @end{}
 
-</body>
-</html>
+<!-- Include Nav Template -->
+@includeNamed{'end.templ'}
