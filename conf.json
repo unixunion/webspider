@@ -2,32 +2,12 @@
 {
   "conf_source": "tld",
   "services": [
-    "com.deblox.myproject.Core",
-    "com.deblox.myproject.PingVerticle",
-    "com.deblox.servers.HttpServer",
-    "com.deblox.servers.AuthVerticle"
+    "com.deblox.myproject.Pinger"
   ],
-  "com.deblox.myproject.PingVerticle": {
+  "com.deblox.myproject.Pinger": {
     "config": {
       "foo": "bar",
       "baz": {}
-    },
-    "worker": false,
-    "multiThreaded": false,
-    "isolationGroup": null,
-    "ha": false,
-    "extraClasspath": null,
-    "instances": 1,
-    "redeploy": true,
-    "redeployScanPeriod": 250,
-    "redeployGracePeriod": 1000
-  },
-  "com.deblox.servers.HttpServer": {
-    "config": {
-      "webroot": "webroot",
-      "templates": "templates",
-      "jksFile": "server-keystore.jks",
-      "jksPassword": "wibble"
     }
   },
   "vertx_options": {

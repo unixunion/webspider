@@ -1,10 +1,8 @@
 package com.deblox.myproject.unit.test;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
+import com.deblox.myproject.Pinger;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.eventbus.Message;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -14,8 +12,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import com.deblox.myproject.PingVerticle;
 
 /*
  * Example of an asynchronous unit test written in JUnit style using vertx-unit
@@ -36,7 +32,7 @@ public class PingVerticleTest {
     eb = vertx.eventBus();
 
     Async async = context.async();
-    vertx.deployVerticle(PingVerticle.class.getName(), res -> {
+    vertx.deployVerticle(Pinger.class.getName(), res -> {
       if (res.succeeded()) {
         async.complete();
       } else {
