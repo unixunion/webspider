@@ -123,8 +123,10 @@ public class HttpServer extends AbstractVerticle {
         logger.info("Checking if user already has a token");
         String tokenId = ctx.getCookie("token").getValue();
         logger.info("Token ID: " + tokenId);
+        ctx.next();
       } catch (NullPointerException e) {
         logger.info("User does not have a token");
+        ctx.next();
       }
     });
 
