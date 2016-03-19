@@ -18,17 +18,19 @@ limitations under the License.
 
 */
 
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
-import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
+import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
 import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
@@ -58,8 +60,14 @@ public class Boot extends AbstractVerticle {
             .description("development boot main");
     parser.addArgument("-conf")
             .help("config file");
+    parser.addArgument("-cluster")
+            .setDefault(false)
+            .action(Arguments.storeTrue())
+            .help("clustering");
+
 
     Namespace ns = null;
+
     try {
       ns = parser.parseArgs(args);
     } catch (ArgumentParserException e) {
@@ -67,11 +75,13 @@ public class Boot extends AbstractVerticle {
       System.exit(1);
     }
 
+    System.setProperty("vertx.clusterManagerFactory", HazelcastClusterManager.class.getCanonicalName());
+
     // if conf is passed or not
     if (ns.get("conf") == null) {
-      DebloxRunner.runJava("src/main/java", Boot.class, false);
+      DebloxRunner.runJava("src/main/java", Boot.class, ns.getBoolean("cluster"));
     } else {
-      DebloxRunner.runJava("src/main/java", Boot.class, false, ns.get("conf"));
+      DebloxRunner.runJava("src/main/java", Boot.class, ns.getBoolean("cluster"), ns.get("conf"));
     }
 
   }

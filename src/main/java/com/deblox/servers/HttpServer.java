@@ -3,24 +3,24 @@ package com.deblox.servers;
 
 import com.deblox.web.handler.DxAuthProvider;
 import com.deblox.web.handler.DxBlogHandler;
+import com.deblox.web.handler.sockjs.DxSockJsHandler;
 import com.deblox.web.templ.DxTemplateEngine;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerOptions;
-import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.net.JksOptions;
+import io.vertx.core.shareddata.AsyncMap;
 import io.vertx.ext.auth.AuthProvider;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.Session;
 import io.vertx.ext.web.handler.*;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
+import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 import io.vertx.ext.web.sstore.LocalSessionStore;
 
 
@@ -41,11 +41,13 @@ public class HttpServer extends AbstractVerticle {
     String jksPassword = config().getString("jksPassword", "wibble");
 
     Router router = Router.router(vertx);
+    router.exceptionHandler(throwable ->{
+      logger.error("Error");
+    });
 
     AuthProvider dxAuthProvider = DxAuthProvider.create();
 
     FormLoginHandler formLoginHandler = FormLoginHandler.create(dxAuthProvider).setDirectLoggedInOKURL("/");
-
 
     // JWT Provider
 //    JsonObject config = new JsonObject().put("keyStore", new JsonObject()
@@ -60,13 +62,14 @@ public class HttpServer extends AbstractVerticle {
     DxTemplateEngine loginDxTemplateEngine = DxTemplateEngine.create(insecureTemplatePath);
 
     // Allow Eventbus events for the designated addresses in/out of the event bus bridge
-    // This is insecure, and requires locking down
-    BridgeOptions opts = new BridgeOptions()
-            .addInboundPermitted(new PermittedOptions())
-            .addOutboundPermitted(new PermittedOptions());
+    // this is for "authorized" users with websocket authority.
+    BridgeOptions authorizedBridgeOpts = new BridgeOptions()
+            .addInboundPermitted(new PermittedOptions().setRequiredAuthority("websocket"))
+            .addOutboundPermitted(new PermittedOptions().setRequiredAuthority("websocket"));
 
-    // Create the event bus bridge and add it to the router.
-    SockJSHandler ebHandler = SockJSHandler.create(vertx).bridge(opts);
+    // The DxSocketJsHandler
+    SockJSHandler ebHandler = DxSockJsHandler.create(vertx, new SockJSHandlerOptions()).bridge(authorizedBridgeOpts);
+
 
     // This cookie handler, session and usersession handler will be called for all routes
     router.route().handler(CookieHandler.create());
@@ -114,22 +117,79 @@ public class HttpServer extends AbstractVerticle {
 //    });
 
 
-
-
-
-    // add variable data to the context for all following routers
+    // token handler
     router.route().handler(ctx -> {
       try {
-        Session session = ctx.session();
-        Integer cnt = session.get("hitcount");
-        cnt = (cnt == null ? 0 : cnt) + 1;
-        session.put("hitcount", cnt);
+        logger.info("Checking if user already has a token");
+        String tokenId = ctx.getCookie("token").getValue();
+        logger.info("Token ID: " + tokenId);
+      } catch (NullPointerException e) {
+        logger.info("User does not have a token");
+      }
+    });
 
+
+
+    // add variable data to the context for all following routers, also attempt to migrate session from the cluster
+    // if its not on this local node.
+    router.route().handler(ctx -> {
+      try {
+
+        String sessionId  = ctx.getCookie("vertx-web.session").getValue();
+
+        logger.info("Session ID: " + sessionId);
+
+
+        // set some variables in the web context
         ctx.put("role", ctx.user().principal().getString("role"));
+        ctx.session().put("token", ctx.user().principal().getString("token"));
         ctx.session().put("user", ctx.user().principal().getString("username"));
+        ctx.response().putHeader("Set-Cookie", "token=" + ctx.user().principal().getString("token") + "; path=/");
 
-      } catch (Exception e) {
-        logger.error("User has no session data, perhaps not logged in?");
+        getVertx().sharedData().getClusterWideMap("sessions", rtx -> {
+          if (rtx.succeeded()) {
+
+            rtx.result().putIfAbsent(sessionId, ctx.user().principal(), res -> {
+              if (res.succeeded()) {
+                logger.info("Added to map " + res.result());
+              } else {
+                logger.error("Unable to add to map");
+              }
+            });
+          } else {
+            logger.error("Clusterwide maps not available");
+          }
+        });
+      } catch (IllegalStateException e) {
+        logger.error("Cluster not enabled, session migrations not possible");
+
+      } catch (NullPointerException e) {
+        e.printStackTrace();
+        logger.error("User has no session data, checking cluster");
+
+        try {
+
+          getVertx().sharedData().<String,String>getClusterWideMap("sessions", crtx -> {
+            String sessionId  = ctx.getCookie("vertx-web.session").getValue();
+
+            if (crtx.succeeded()) {
+              AsyncMap<String, String> map = crtx.result();
+              map.get(sessionId, resGet -> {
+                if (resGet.succeeded()) {
+                  Object userPrincipal = resGet.result();
+                  logger.info(userPrincipal.toString());
+                }
+              });
+
+            } else {
+              logger.error("Unable to open the sessions map on the cluster");
+            }
+
+          });
+        } catch (IllegalStateException ex) {
+          logger.error("clustering not enabled, sessions cannot be found in the cluster");
+        }
+
       }
       ctx.next();
     });
@@ -144,9 +204,9 @@ public class HttpServer extends AbstractVerticle {
     router.route("/static/*").handler(StaticHandler.create(webrootPath));
 
     // Handles the actual login POST
-    router.route("/loginhandler").handler(formLoginHandler).failureHandler(res -> {
-      logger.error("Error logging in " + res.failed());
-      res.next();
+    router.route("/loginhandler").handler(formLoginHandler).failureHandler(ctx -> {
+      ctx.response().setStatusCode(400);
+      ctx.response().end("Unauthorized");
     });
 
     // Handles the logout GET
@@ -181,10 +241,10 @@ public class HttpServer extends AbstractVerticle {
     router.route().handler(TemplateHandler.create(dxTemplateEngine));
 
     // failure handler
-    router.route().failureHandler(ctx -> {
-      HttpServerResponse response = ctx.response();
-      response.end("Error Occurred");
-    });
+//    router.route().failureHandler(ctx -> {
+//      HttpServerResponse response = ctx.response();
+//      response.end("Error Occurred");
+//    });
 
     JksOptions jksOptions = new JksOptions()
             .setPath(jksFile)
@@ -213,5 +273,9 @@ public class HttpServer extends AbstractVerticle {
     });
 
   }
+
+
+
+
 
 }

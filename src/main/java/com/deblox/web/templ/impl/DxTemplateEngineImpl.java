@@ -2,10 +2,7 @@ package com.deblox.web.templ.impl;
 
 import com.deblox.myproject.Core;
 import com.deblox.web.templ.DxTemplateRegistry;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.VertxException;
+import io.vertx.core.*;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
@@ -113,6 +110,8 @@ public class DxTemplateEngineImpl extends CachingTemplateEngine<CompiledTemplate
       Map<String, RoutingContext> variables = new HashMap<>(1);
       variables.put("context", context);
       handler.handle(Future.succeededFuture(Buffer.buffer((String) TemplateRuntime.execute(template, context, variables, registry))));
+    } catch (NoSuchFileException ex) {
+      context.fail(400);
     } catch (Exception ex) {
       ex.printStackTrace();
       handler.handle(Future.failedFuture(ex));
@@ -127,11 +126,24 @@ public class DxTemplateEngineImpl extends CachingTemplateEngine<CompiledTemplate
 
       // real compile
       String loc = adjustLocation(templateFileName);
-      String templateText = Utils.readFileToString(context.vertx(), loc);
+      String templateText;
+
+      try {
+        templateText = Utils.readFileToString(context.vertx(), loc);
+      } catch (VertxException e) {
+        if (e.getCause().getCause() instanceof NoSuchFileException) {
+          logger.error("No such template file " + loc);
+          throw new NoSuchFileException("No such template file " + loc);
+        } else {
+          logger.error("Some other error " + e.getCause().getCause());
+          throw e;
+        }
+      }
 
       if (templateText == null) {
         throw new IllegalArgumentException("Cannot find template " + loc);
       }
+
       template = TemplateCompiler.compileTemplate(templateText);
       cache.put(templateFileName, template);
     } else {

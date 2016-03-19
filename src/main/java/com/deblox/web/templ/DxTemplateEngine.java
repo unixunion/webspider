@@ -2,6 +2,7 @@
 package com.deblox.web.templ;
 
 import io.vertx.codegen.annotations.VertxGen;
+import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
 import com.deblox.web.templ.impl.DxTemplateEngineImpl;
 import io.vertx.ext.web.templ.TemplateEngine;

@@ -15,17 +15,18 @@
         eb.onopen = function () {
             console.log("Registering topics");
             clearInterval(reconnector);
+
             // subscribe to broadcast messages from the server
-            eb.registerHandler("broadcast", function (msg) {
-                console.log(msg);
+            eb.registerHandler("openout", function (msg) {
+                console.log("openout: " + msg);
             });
 
-//            msg = {};
-//            msg['action'] = 'cache-purge-all'
-//
-//            eb.send("DxTemplateEngineImpl", msg, function(msg) {
-//                console.log(msg);
-//            });
+            msg = {};
+            msg['token'] = token;
+            eb.send("openin", msg, function(msg) {
+              console.log("openin: " + msg);
+            });
+
         }
 
         eb.onclose = function () {

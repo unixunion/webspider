@@ -40,7 +40,7 @@ public class DxUser extends AbstractUser {
   @Override
   protected void doIsPermitted(String permission, Handler<AsyncResult<Boolean>> resultHandler) {
     logger.info("doIsPermitted called for permission: " + permission);
-    resultHandler.handle(Future.succeededFuture(this.principal().getBoolean(permission)));
+    resultHandler.handle(Future.succeededFuture(this.principal().getBoolean(permission, false)));
   }
 
   @Override

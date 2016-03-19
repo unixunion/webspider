@@ -7,6 +7,8 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
 
+import java.util.UUID;
+
 import static com.deblox.messaging.Responses.sendError;
 import static com.deblox.messaging.Responses.sendOK;
 
@@ -32,6 +34,8 @@ public class AuthVerticle extends AbstractVerticle {
       if ((authInfo.getString("username").equals("admin")) && (authInfo.getString("password").equals("admin"))) {
         JsonObject userPrincipal = authInfo;
         userPrincipal.put("role", "admin");
+        userPrincipal.put("websocket", true);
+        userPrincipal.put("token", UUID.randomUUID().toString());
         sendOK(this.getClass().getSimpleName(), message, userPrincipal);
 
       } else {
