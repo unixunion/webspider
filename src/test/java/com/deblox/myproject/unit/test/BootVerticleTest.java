@@ -8,12 +8,14 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -32,10 +34,13 @@ public class BootVerticleTest {
   JsonObject config;
   private static final Logger logger = LoggerFactory.getLogger(BootVerticleTest.class);
 
+  @Rule
+  public RunTestOnContext rule = new RunTestOnContext();
+
   @Before
   public void before(TestContext context) {
     logger.info("@Before");
-    vertx = Vertx.vertx();
+    vertx = rule.vertx();
     eb = vertx.eventBus();
 
     try {
@@ -54,20 +59,19 @@ public class BootVerticleTest {
     });
   }
 
-  @After
-  public void after(TestContext context) {
-    logger.info("@After");
-    Async async = context.async();
-
-    // the correct way after next release
-    //vertx.close(context.assertAsyncSuccess());
-
-    vertx.close( event ->
-    {
-      async.complete();
-    });
-
-  }
+//  @After
+//  public void after(TestContext context) {
+//    logger.info("@After");
+//    Async async = context.async();
+//
+//    // the correct way after next release
+//    //vertx.close(context.assertAsyncSuccess());
+//
+//    vertx.close( event ->
+//    {
+//      async.complete();
+//    });
+//  }
 
   @Test
   public void test(TestContext test) {

@@ -17,21 +17,22 @@ public class Pinger extends AbstractVerticle implements Handler<Message> {
   private static final Logger logger = LoggerFactory.getLogger(Pinger.class);
   public static EventBus eb;
 
-  public void start(Future<Void> startFuture) throws Exception {
+  @Override
+  public void start(final Future<Void> startFuture) {
 
     logger.info("Startup with Config: " + config().toString());
 
     eb = vertx.eventBus();
 
     eb.consumer("ping-address", message -> {
+      logger.info("Replying to ping");
       message.reply("reply to ping");
     });
 
-    // wait 1 second before completing startup
-    vertx.setTimer(1000, tid -> {
-      logger.info("startup complete");
-      startFuture.complete();
-    });
+
+    startFuture.complete();
+
+    logger.info("Startup Complete");
 
   }
 

@@ -87,18 +87,9 @@ public class Boot extends AbstractVerticle {
   }
 
   @Override
-  public void start(final Future<Void> startedResult) {
+  public void start(final Future<Void> startedFuture) {
 
-    logger.info("\n" +
-            "████████▄     ▄████████ ▀█████████▄   ▄█        ▄██████▄  ▀████    ▐████▀      ▀█████████▄   ▄██████▄   ▄██████▄      ███     \n" +
-            "███   ▀███   ███    ███   ███    ███ ███       ███    ███   ███▌   ████▀         ███    ███ ███    ███ ███    ███ ▀█████████▄ \n" +
-            "███    ███   ███    █▀    ███    ███ ███       ███    ███    ███  ▐███           ███    ███ ███    ███ ███    ███    ▀███▀▀██ \n" +
-            "███    ███  ▄███▄▄▄      ▄███▄▄▄██▀  ███       ███    ███    ▀███▄███▀          ▄███▄▄▄██▀  ███    ███ ███    ███     ███   ▀ \n" +
-            "███    ███ ▀▀███▀▀▀     ▀▀███▀▀▀██▄  ███       ███    ███    ████▀██▄          ▀▀███▀▀▀██▄  ███    ███ ███    ███     ███     \n" +
-            "███    ███   ███    █▄    ███    ██▄ ███       ███    ███   ▐███  ▀███           ███    ██▄ ███    ███ ███    ███     ███     \n" +
-            "███   ▄███   ███    ███   ███    ███ ███▌    ▄ ███    ███  ▄███     ███▄         ███    ███ ███    ███ ███    ███     ███     \n" +
-            "████████▀    ██████████ ▄█████████▀  █████▄▄██  ▀██████▀  ████       ███▄      ▄█████████▀   ▀██████▀   ▀██████▀     ▄████▀   1.0\n" +
-            "                                     ▀                    https://github.com/unixunion/deblox-vertx-template                  \n");
+    logger.info("DawnSquad Boot\n");
 
     config = config();
 
@@ -127,7 +118,6 @@ public class Boot extends AbstractVerticle {
 
         if (res.succeeded()) {
           logger.info("successfully deployed service: " + serviceClassName);
-
         } else {
           logger.error("failure while deploying service: " + serviceClassName);
           res.cause().printStackTrace();
@@ -139,9 +129,14 @@ public class Boot extends AbstractVerticle {
 
 
     // for testing purposes, we need a litte delay since its less code than wait implement all verticles to boot.
-    vertx.setTimer(1000, event -> {
-      startedResult.complete();
-      logger.info("startup complete");
+    vertx.setTimer(2000, event -> {
+      logger.info("Sending Startup Complete Event");
+      try {
+        startedFuture.complete();
+        logger.info("Startup Completed");
+      } catch (IllegalStateException e) {
+        logger.warn("Unable to send completed result");
+      }
     });
 
 
