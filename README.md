@@ -3,15 +3,8 @@ a modified version of [vertx-gradle-template](https://github.com/vert-x/vertx-gr
 a few starting points for building simple web stack.
 
 ## features
-* Vert.x 3.2.1
-* HTTP Web Server
-* WebSocket Client
-* WebSocket Bridge
-* MVEL Templating Engine
-* Authentication Provider
-* Authentication Handler on the EventBus
-* Materialize CSS
-* Modular Service Boot Class
+* Vert.x 3.4.1
+* Modular Boot Class
 * Logback logging framework
 
 ## boot class
