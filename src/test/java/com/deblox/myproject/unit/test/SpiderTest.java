@@ -1,13 +1,14 @@
 package com.deblox.myproject.unit.test;
 
-import com.deblox.myproject.Pinger;
+import com.deblox.spinnekop.Spider;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,11 +20,11 @@ import org.junit.runner.RunWith;
  * @author <a href="http://tfox.org">Tim Fox</a>
  */
 @RunWith(VertxUnitRunner.class)
-public class PingVerticleTest {
+public class SpiderTest {
 
   Vertx vertx;
   EventBus eb;
-  private static final Logger logger = LoggerFactory.getLogger(PingVerticleTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(SpiderTest.class);
 
   @Before
   public void before(TestContext context) {
@@ -32,10 +33,11 @@ public class PingVerticleTest {
     eb = vertx.eventBus();
 
     Async async = context.async();
-    vertx.deployVerticle(Pinger.class.getName(), res -> {
+    vertx.deployVerticle(Spider.class.getName(), res -> {
       if (res.succeeded()) {
         async.complete();
       } else {
+        res.cause().printStackTrace();
         context.fail();
       }
     });
@@ -58,8 +60,9 @@ public class PingVerticleTest {
   @Test
   public void test(TestContext test) {
     Async async = test.async();
-    eb.send("ping-address", "ping!", reply -> {
+    eb.send("manager-address", new JsonObject().put("action", "spider").put("url", "https://stackoverflow.com"), reply -> {
       if (reply.succeeded()) {
+          logger.info(reply.result().body().toString());
         async.complete();
       } else {
         test.fail();

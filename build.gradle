@@ -21,6 +21,8 @@ repositories {
 }
 
 dependencies {
+    compile group: 'org.postgresql', name: 'postgresql', version: '42.2.5'
+    compile "io.vertx:vertx-web-client:$vertxVersion"
     compile "io.vertx:vertx-hazelcast:$vertxVersion"
     compile "io.vertx:vertx-auth-common:$vertxVersion"
     compile "io.vertx:vertx-core:$vertxVersion"

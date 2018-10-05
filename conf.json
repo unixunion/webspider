@@ -1,9 +1,7 @@
 // config options per service are as per: DeployOptions.java
 {
   "conf_source": "tld",
-  "services": [
-    "com.deblox.myproject.Pinger"
-  ],
+  "services": ["com.deblox.spinnekop.Spider", "com.deblox.spinnekop.DataCaptureService"],
   "com.deblox.myproject.Pinger": {
     "config": {
       "foo": "bar",

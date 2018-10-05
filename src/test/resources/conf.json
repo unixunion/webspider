@@ -1,7 +1,7 @@
 // config options per service are as per: DeployOptions.java
 {
   "environment": "testing",
-  "services": ["com.deblox.myproject.Pinger"],
+  "services": ["com.deblox.spinnekop.Spider"],
   "com.deblox.myproject.Pinger": {
     "config": {
       "foo": "bar",

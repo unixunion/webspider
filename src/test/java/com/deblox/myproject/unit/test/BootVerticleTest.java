@@ -59,25 +59,12 @@ public class BootVerticleTest {
     });
   }
 
-//  @After
-//  public void after(TestContext context) {
-//    logger.info("@After");
-//    Async async = context.async();
-//
-//    // the correct way after next release
-//    //vertx.close(context.assertAsyncSuccess());
-//
-//    vertx.close( event ->
-//    {
-//      async.complete();
-//    });
-//  }
 
   @Test
   public void test(TestContext test) {
     Async async = test.async();
     logger.info("sending ping");
-    eb.send("ping-address", "ping!", reply -> {
+    eb.send("manager-address", new JsonObject().put("action", "ping"), reply -> {
       if (reply.succeeded()) {
         async.complete();
       } else {
